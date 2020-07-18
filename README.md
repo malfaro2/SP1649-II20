@@ -1,5 +1,5 @@
 <figure>
-  <img src="hexagon_final.png" width="30%">
+  <img src="baseplot.png" width="30%">
 </figure>
 
 Las evaluaciones y anuncios del curso se harán por medio de Mediación Virtual, este repositorio es para el material de clase, prácticas y vídeos que utilizaremos. 
