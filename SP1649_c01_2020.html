@@ -1,0 +1,826 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Tópicos de Estadística Espacial Aplicada</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Semana 1" />
+    <meta name="date" content="2020-08-06" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Tópicos de Estadística Espacial Aplicada
+## II Semestre 2020
+### Semana 1
+### 2020-08-06
+
+---
+
+
+
+
+class: center, middle, inverse
+# ¿Qué vamos a discutir hoy?
+
+Lectura del programa y detalles del curso.
+
+Análisis de Datos Espaciales (tipo de datos)
+
+¿Por qué usamos R?
+
+Relación entre R y GIS
+
+Laboratorio 1 + Asignación de proyecto 
+
+
+---
+
+## Acerca de mi
+
+* Profesora Invitada 4to año de la Escuela de Estadística, UCR.
+* Bachillerato en Estadística, Universidad de Costa Rica
+* Maestría en Estadística, Iowa State University
+* Doctorado en Estadística, North Carolina State University
+* Orcid: https://orcid.org/0000-0002-7703-3578
+
+Mis temas de investigación se relacionan con el desarrollo de nuevos métodos estadísticos para responder preguntas científicas relativas al medio ambiente, entre otros temas. Específicamente, uso y desarrollo técnicas de estadística espacio-temporal, además de análisis de datos funcionales. Las aplicaciones en las que he trabajado incluyen: clima, predicción de huracanes, biofísica, radiología y veterinaria. 
+
+---
+
+## Acerca de Uds
+
+* En breakout rooms, entreviste a la otra persona que le asignaré aleatoriamente, pregúntele al menos los siguientes datos: 
+
+* Nombre, ¿en cuál maestría está matriculada?, ¿en qué trabaja?, y algún consejo que nos quieran contar acerca de cómo ha logrado lidiar con estos tiempos de pandemia.
+
+* En 10 minutos Ud tendrá que presentar a su compañero de trabajo al resto de la clase.
+
+---
+  
+## Programa y detalles
+  
+* Modalidad: Curso 100% Virtual. Sesiones sincrónicas semanales, con laboratorios para hacer en sus casas.
+
+* Profesora: Dra. Marcela Alfaro Córdoba, mi correo es: marcela.alfarocordoba@ucr.ac.cr, pero prefiero mantener la comunicación con Uds vía Slack:
+https://join.slack.com/t/sp1649ii20/shared_invite/zt-gfcu8oaq-Jdn_qZL~KXxFUer4tdpy8A
+
+
+* Lectura del programa
+
+* [Libro de texto](http://gis.humboldt.edu/OLM/r/Spatial%20Analysis%20With%20R.pdf)
+
+---
+
+## Descripción del curso
+
+* La estadística espacial es un área relativamente nueva, y que agrupa diferentes métodos estadísticos para estudiar la localización geográfica de eventos.
+
+* En algunas áreas de aplicación, el simple hecho de visualizar los eventos en un mapa o sistema de coordenadas puede ser de gran utilidad e inclusive puede ayudar a desarrollar hipótesis científicas. Sin embargo, hay casos donde la distribución espacial puede contener aún mayor información. 
+
+* De forma muy simplificada, se puede decir que el objetivo de los métodos estadísticos espaciales es entender los procesos aleatorios detrás de la distribución geográfica de los eventos, o estudiar el efecto que la distribución geográfica tiene sobre otros procesos.
+
+* La estadística espacial puede dividirse en tres grandes áreas, de acuerdo al tipo de datos recolectados: discretos, continuos o agregados por área. El tipo de problema que se puede solucionar, el análisis estadístico y la interpretación correspondiente difieren entre estas tres áreas. 
+
+* El curso está diseñado como curso teórico-práctico de 4 créditos y opcional dentro de la maestría profesional en Estadística.
+
+---
+
+  
+## Herramientas de trabajo
+  
+* Slack, Zoom, Repositorio: https://malfaro2.github.io/SP1649-II20/, Google Forms, Sheets y Docs compartidos.
+
+* Entrega de laboratorios y proyecto final por medio de Github. Cada uno tendrá un repositorio llamado SP1649 en donde depositará los 5 laboratorios resueltos (en formato html o md), y un folder con el proyecto (datos, código, documento).
+
+* Hoy daremos una introducción a Github para aquellas personas que no están familiarizadas.
+
+---
+
+## Antes de iniciar
+
+* Instale Slack y acepte la [invitación](https://join.slack.com/t/sp1649ii20/shared_invite/zt-gfcu8oaq-Jdn_qZL~KXxFUer4tdpy8A).
+* Por favor llene el cuestionario en línea: 
+https://forms.gle/19oy1d2dgT7ju6vt8
+
+(tienen 15 minutos)
+
+---
+
+## Referencias técnicas:
+
+http://happygitwithr.com/
+
+https://www.springer.com/gp/book/9781461476177
+
+http://pakillo.github.io/R-GIS-tutorial/
+
+http://www.rspatial.org/cases/index.html
+
+https://labscn-unalmed.github.io/estadistica-espacial/index.html
+
+---
+
+# Tipos de datos espaciales
+
+*¿Por qué es importante incorporar información espacial?; ¿cuál es el valor agregado de un análisis espacial?; ¿cuándo y dónde se puede utilizar estadística espacial?; cuál es la conexión con los sistemas de información geográfica (SIG).*
+
+* Ejemplos de datos espaciales: datos metereológicos, epidemiológicos, demográficos, microscópicos, scans cerebrales, ¿algún otro ejemplo?
+
+* Los mapas son las herramientas con las que más estamos familiarizadas, sin embargo, representar algo como un mapa sin distorsionar la realidad no es tarea fácil. 
+
+* Además de crear y analizar mapas, el análisis de datos espaciales se ocupa de preguntas que no necesariamente se pueden responder al observar los datos. Estas preguntas se refieren a procesos que pueden haber generado los datos, y que normalmente elevan la dificultad en el proceso de inferencia. 
+
+---
+
+# Tipos de datos espaciales
+
+Algunas preguntas que pueden surgir y que contienen un elemento espacial son:
+
+* ¿Podemos decir que ciertos patrones espaciales de incidencia de enfermedades están agrupados?, de ser así, ¿están correlacionados con variables demográficas?
+
+* Dado un número de muestras de suelos, ¿qué parte del área de estudio está contaminada y cuál no?
+
+* Si tenemos un grupo de mediciones de calidad de aire repartidas por toda la ciudad de San José, y la población por distrito, ¿cuánta gente está expuesta a altos niveles de contaminación (definidos como humo negro) en el lugar donde habitan?
+
+* ¿Hay independencia entre las mediciones de pobreza entre una región de planificación y la otra?
+
+---
+
+## Breve reseña histórica:
+
+* Los primeros intentos de análisis espacial surgen en cartografía y topografía, pero muchos campos han contribuido al desarrollo de técnicas y teoría. 
+
+* La biología contribuyó a través de estudios botánicos de distribuciones de plantas globales y ubicaciones de plantas locales, estudios etológicos (comportamiento animal) de movimiento de animales, estudios ecológicos de paisaje de bloques de vegetación, estudios ecológicos de dinámica de poblaciones espaciales, y el estudio de la biogeografía. 
+
+* La epidemiología contribuyó con los primeros trabajos sobre el mapeo de enfermedades, especialmente el trabajo de [John Snow](https://ij-healthgeographics.biomedcentral.com/articles/10.1186/s12942-015-0011-y) de mapeo de un brote de cólera, con investigaciones sobre el mapeo de la propagación de enfermedades y con estudios de ubicación para la prestación de servicios de salud. 
+
+* Las estadísticas han contribuido en gran medida a través del trabajo en estadísticas espaciales. La economía ha contribuido notablemente a través de la econometría espacial. 
+
+---
+
+## Breve reseña histórica:
+
+* Los sistemas de información geográfica (SIG) son contribuyentes importantes en la actualidad, debido a la importancia del software geográfico en la caja de herramientas analítica moderna. 
+
+* La teledetección y las imágenes satelitales han contribuido ampliamente con el análisis morfométrico y de agrupamiento. 
+
+* La informática ha contribuido ampliamente a través del estudio de algoritmos, especialmente en geometría computacional y de procesamiento de imágenes. 
+
+* Las matemáticas continúan brindando las herramientas fundamentales para el análisis y para revelar la complejidad del dominio espacial, por ejemplo, con el trabajo reciente sobre fractales y la invarianza de escalas. Pero antes de entrar en detalle acerca de todos estos temas, veámos los distintos tipos de datos que podemos encontrar en la estadística espacial.
+
+---
+
+## Tipos de datos espaciales:
+
+* Todos los datos espaciales deben tener valores de coordenadas y un sistema de referencia para estas coordenadas. Como un ejemplo simple, considere las locaciones de los sismos ocurridos en las últimas horas alrededor del mundo: https://earthquake.usgs.gov/earthquakes/map/
+
+* ¿Qué tipo de proyección se utilizó? ¿Cómo se representa la latitud y la longitud en cada tipo de proyecciones? Pueden leer un poco más acá: http://www.georeference.org/doc/manifold.htm#latitude_longitude_projection.htm. En el laboratorio de R veremos maneras de transformar coordenadas dependiendo de la proyección utilizada.
+
+---
+
+## Tipos de datos espaciales:
+
+
+* Además de las coordenadas, el conjunto de datos puede incluir infomación acerca de los sismos que no necesariamente es espacial. En este contexto le llamamos a esas variables *atributos*: no es información espacial por si sola, pero cada locación en el espacio posee ese atributo, a lo mejor con valores distintos.
+
+* La información puramente espacial puede representarse de distintas maneras o *data models*. Los distintos tipos de *data models* espaciales son los siguientes:
+
+a. Puntos: una locación como un punto, como por ejemplo es que da una lectura del GPS o una dirección georeferenciada.
+
+b. Lineas: Un conjunto de puntos ordenados, conectados por segmentos de líneas rectas. 
+
+c. Polígonos: un área, marcada por una o más líneas incluidas, que posiblemente contiene huecos.
+
+d. Grillas (*grids*): una colección de puntos o celdas rectangulares, organizadas en un enrejado regular. 
+
+---
+
+## Tipos de datos espaciales:
+
+* Los primeros tres *data models* son vectores y representan entidades exactas dentro de lo posible, mientras que las grillas o *grids* son rásteres (*rasters*)[http://desktop.arcgis.com/es/arcmap/10.3/manage-data/raster-and-images/what-is-raster-data.htm] que tratan de representar una superficies continuas utilizando mosaicos regulares. 
+
+Todos los datos espaciales deben contestar la pregunta **¿dónde está?**, y en algunos casos tendrán como complemento atributos que contestarán la pregunta **¿qué está aquí?**. Veamos ejemplos de estos cuatro tipos de *data models* a continuación. 
+
+---
+
+## Puntos
+
+Los puntos son la forma más básica de datos espaciales, son pares de coordenadas (x, y) que representan eventos, observaciones, publicaciones, individuos, ciudades o cualquier otro objeto discreto definido en el espacio. Démosle un vistazo al crimen descrito en el conjunto de datos *crime*, que es solo una tabla de
+coordenadas geográficas (grados decimales) para ubicaciones de crimen en Houston, TX.
+
+
+```r
+## Explore data
+head(crime)
+```
+
+```
+##   ID      LONG      LAT
+## 1  1 -76.65159 39.23941
+## 2  2 -76.47434 39.35274
+## 3  3 -76.51726 39.25874
+## 4  4 -76.52607 39.40707
+## 5  5 -76.51001 39.33571
+## 6  6 -76.70375 39.26605
+```
+
+```r
+dim(crime)
+```
+
+```
+## [1] 1061    3
+```
+
+
+---
+
+## Puntos
+
+
+```r
+data &lt;- crime[complete.cases(crime),]
+## Create matrix of coordinates
+sp_point &lt;- cbind(data$LONG, data$LAT)
+colnames(sp_point) &lt;- c("lon","lat")
+head(sp_point)
+```
+
+```
+##            lon      lat
+## [1,] -76.65159 39.23941
+## [2,] -76.47434 39.35274
+## [3,] -76.51726 39.25874
+## [4,] -76.52607 39.40707
+## [5,] -76.51001 39.33571
+## [6,] -76.70375 39.26605
+```
+
+```r
+## Projection: UTM Zone 17
+proj &lt;- CRS("+proj=utm +zone=17 +datum=WGS84")
+## Create spatial object
+data.sp &lt;- SpatialPointsDataFrame(coords=sp_point,data,proj4string=proj)
+```
+
+
+---
+
+## Puntos
+
+
+```r
+## Bounding box of data points
+bbox(data.sp)
+```
+
+```
+##           min       max
+## lon -76.82981 -76.38756
+## lat  39.22488  39.67995
+```
+
+```r
+## Plot crime locations
+par(mar=c(2,2,0.2,0.2))
+plot(data.sp,pch=16, cex=.5, axes=T)
+```
+
+![](SP1649_c01_2020_files/figure-html/fig1-1.png)&lt;!-- --&gt;
+
+
+---
+
+## Puntos
+
+
+```r
+par(mar=c(2,2,0.2,0.2))
+plot(data.sp,pch=16, cex=.5, axes=T)
+par(mar=rep(0.5,4))
+plot(data.sp,pch=1, cex=.5,add=T, col="blue")
+```
+
+![](SP1649_c01_2020_files/figure-html/fig2-1.png)&lt;!-- --&gt;
+
+* ¿Cuáles son los atributos de este conjunto de datos?
+
+* ¿Cuáles son los retos de visualización?
+
+---
+
+## Polígonos y líneas
+
+Los polígonos pueden ser considerados como secuencias de puntos conectados, donde el primer punto es el mismo que el anterior. Un polígono abierto, donde la secuencia de puntos no da como resultado un
+forma cerrada con un área definida, se llama una línea.
+
+En el entorno R, los datos de línea y polígono se almacenan en objetos de clases SpatialPolygons y SpatialLines:
+
+
+```r
+getClass("Polygon")
+```
+
+```
+## Class "Polygon" [package "sp"]
+## 
+## Slots:
+##                                               
+## Name:    labpt    area    hole ringDir  coords
+## Class: numeric numeric logical integer  matrix
+## 
+## Extends: "Line"
+```
+
+---
+
+## Polígonos y líneas
+
+Los polígonos pueden ser considerados como secuencias de puntos conectados, donde el primer punto es el mismo que el anterior. Un polígono abierto, donde la secuencia de puntos no da como resultado un
+forma cerrada con un área definida, se llama una línea.
+
+En el entorno R, los datos de línea y polígono se almacenan en objetos de clases SpatialPolygons y SpatialLines:
+
+
+```r
+getClass("SpatialPolygons")
+```
+
+```
+## Class "SpatialPolygons" [package "sp"]
+## 
+## Slots:
+##                                                       
+## Name:     polygons   plotOrder        bbox proj4string
+## Class:        list     integer      matrix         CRS
+## 
+## Extends: "Spatial", "SpatialPolygonsNULL"
+## 
+## Known Subclasses: 
+## Class "SpatialPolygonsDataFrame", directly, with explicit coerce
+```
+
+---
+
+## Polígonos y líneas
+
+Veámos el conjunto de datos de elecciones como un ejemplo: 
+
+
+```r
+#summary(election)
+names(election)
+```
+
+```
+##  [1] "NAME"       "STATE_NAME" "STATE_FIPS" "CNTY_FIPS"  "FIPS"      
+##  [6] "AREA"       "FIPS_num"   "Bush"       "Kerry"      "County_F"  
+## [11] "Nader"      "Total"      "Bush_pct"   "Kerry_pct"  "Nader_pct" 
+## [16] "MDratio"    "hosp"       "pcthisp"    "pcturban"   "urbrural"  
+## [21] "pctfemhh"   "pcincome"   "pctpoor"    "pctlt9ed"   "pcthsed"   
+## [26] "pctcoled"   "unemploy"   "pctwhtcl"   "homevalu"   "rent"      
+## [31] "popdens"    "crowded"    "ginirev"    "SmokecurM"  "SmokevrM"  
+## [36] "SmokecurF"  "SmokevrF"   "Obese"      "Noins"      "XYLENES__M"
+## [41] "TOLUENE"    "TETRACHLOR" "STYRENE"    "NICKEL_COM" "METHYLENE_"
+## [46] "MERCURY_CO" "LEAD_COMPO" "BENZENE__I" "ARSENIC_CO" "POP2000"   
+## [51] "POP00SQMIL" "MALE2000"   "FEMALE2000" "MAL2FEM"    "UNDER18"   
+## [56] "AIAN"       "ASIA"       "BLACK"      "NHPI"       "WHITE"     
+## [61] "AIAN_MORE"  "ASIA_MORE"  "BLK_MORE"   "NHPI_MORE"  "WHT_MORE"  
+## [66] "HISP_LAT"   "CH19902000" "MEDAGE2000" "PEROVER65"
+```
+
+```r
+data &lt;- election
+var &lt;- data$Bush_pct
+pal &lt;- c("#0000FF","#3F00BF","#7F007F","#BF003F","#FF0000")
+```
+
+---
+
+## Polígonos y líneas
+
+Los datos están almacenados como un SpatialPolygonsDataFrame, que es una subclase de SpatialPolygons que contiene atributos en forma de data.frame. En este caso, los polígonos representan los condados de Estados Unidos y los atributos son los resultados de las elecciones presidenciales del 2004. 
+
+
+```r
+## proj4string(data) &lt;- CRS("+proj=lcc+lon_0=90w +lat_1=20n +lat_2=60n")
+summary(data)[1:4]
+```
+
+```
+## $class
+## [1] "SpatialPolygonsDataFrame"
+## attr(,"package")
+## [1] "sp"
+## 
+## $bbox
+##           min       max
+## r1 -124.73142 -66.96985
+## r2   24.95597  49.37173
+## 
+## $is.projected
+## [1] TRUE
+## 
+## $proj4string
+## [1] "+proj=lcc+lon_0=90w +lat_1=20n +lat_2=60n"
+```
+
+```r
+par(mar=c(0,0,0,0))
+plot(data)
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+## Polígonos y líneas
+
+
+```r
+## proj4string(data) &lt;- CRS("+proj=lcc+lon_0=90w +lat_1=20n +lat_2=60n")
+par(mar=c(0,0,0,0))
+plot(data)
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+## Polígonos y líneas
+
+Ese es sólo el mapa, pero podemos representar atributos, ya sean categóricos o contínuos:
+
+* Para categóricos, como por ejemplo ganó o perdió el partido A, es bastante simple: denotemos con rojo cada condado que ganó Bush y con azul cada condado que ganó Kerry.
+
+* Para continuos la misma lógica aplica, excepto que en estos casos podemos usar una paleta para que los colores puedan tener más que dos tonalidades. 
+
+
+---
+
+## Polígonos y líneas
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+---
+
+## Polígonos y líneas
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
+---
+
+## Grillas (*grids*)
+
+Una grilla o rejilla en cuadrícula divide la región de estudio en un conjunto idéntico, con elementos discretos espaciados regularmente (píxeles), cada uno de los cuales registra el valor o presencia / ausencia de una cantidad de interés. Los rásteres se originaron en el procesamiento de imágenes y se utilizan para registrar propiedades que varían continuamente con el espacio. Los usos comunes incluyen datos de teledetección, modelos de elevación y
+predicción espacial (predicciones meteorológicas, riesgo de enfermedad, etc.). 
+
+Demos un vistazo a la estructura de datos del conjunto de datos del volcán, una grilla de medidas de elevación para el volcán Maunga Whau en Nueva Zelanda:
+
+---
+
+## Grillas (*grids*)
+
+
+
+```r
+head(volcano)[,1:6]        
+```
+
+```
+##      [,1] [,2] [,3] [,4] [,5] [,6]
+## [1,]  100  100  101  101  101  101
+## [2,]  101  101  102  102  102  102
+## [3,]  102  102  103  103  103  103
+## [4,]  103  103  104  104  104  104
+## [5,]  104  104  105  105  105  105
+## [6,]  105  105  105  106  106  106
+```
+
+```r
+dim(volcano)            
+```
+
+```
+## [1] 87 61
+```
+
+```r
+z &lt;- volcano            ## Height Variable
+x &lt;- 10*(1:nrow(z))     ## 10 Meter Spacing (S-N)
+y &lt;- 10*(1:ncol(z))     ## 10 Meter Spacing (E-W)
+```
+
+Las grillas pueden visualizarse en 2 dimensiones como gráficos de contour, como imágenes en colores gradientes o ambas: 
+
+---
+
+## Grillas (*grids*)
+
+
+```r
+## Contour Plot
+par(mar=rep(0.5,4))               
+contour(x, y, z, levels=seq(from=min(z), to=max(z), by=10),axes=F)
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+## Grillas (*grids*)
+
+
+```r
+## Gradient
+par(mar=rep(0.5,4))  
+image(x, y, z, col=terrain.colors(100), axes=F)
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+## Grillas (*grids*)
+
+
+```r
+## Gradient + Countour
+par(mar=rep(0.5,4))               
+image(x, y, z, col=terrain.colors(100), axes=F)
+contour(x, y, z, levels=seq(from=min(z), to=max(z), by=10),axes=F, add=T)
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+
+## Grillas (*grids*)
+
+También pueden representarse como gráficos de 3 dimensiones:
+
+
+```r
+## 3-D Plot
+par(mar=rep(0,4))               
+persp(x,y,z,theta=120,phi=15,scale=F,axes=F)
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+
+## Grillas (*grids*)
+
+
+```r
+## 3-D Elevation Plot w/ color
+z &lt;- 2 * volcano        ## Exaggerate the relief
+x &lt;- 10 * (1:nrow(z))   ## 10 meter spacing (S to N) 
+y &lt;- 10 * (1:ncol(z))   ## 10 meter spacing (E to W) 
+## Create new grid
+z0 &lt;- min(z) - 20 
+z &lt;- rbind(z0, cbind(z0, z, z0), z0) 
+x &lt;- c(min(x) - 1e-10, x, max(x) + 1e-10)
+y &lt;- c(min(y) - 1e-10, y, max(y) + 1e-10) 
+## Create matrix of base colors
+fcol &lt;- matrix("green3", nr = nrow(z)-1, nc = ncol(z)-1) 
+fcol[ , i2 &lt;- c(1,ncol(fcol))] &lt;- "gray" 
+fcol[i1 &lt;- c(1,nrow(fcol)) , ] &lt;- "gray" 
+## Take average of four neighboring values for palette
+zi &lt;- (volcano[ -1,-1] + volcano[ -1,-61] + volcano[-87,-1] + volcano[-87,-61])/4
+pal &lt;- terrain.colors(20)[cut(zi, quantile(zi, seq(0,1, len = 21)), include.lowest = TRUE)]
+fcol[-i1,-i2] &lt;- pal
+```
+
+---
+
+## Grillas (*grids*)
+
+
+```r
+## Plot it
+par(mar=rep(0,4))
+persp(x, y, z, theta=120, phi=15, col = fcol, scale = FALSE, shade = 0.4, border = NA) 
+```
+
+![](SP1649_c01_2020_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+## Grillas (*grids*)
+
+Otros ejemplos de datos espaciales en grillas son las imágenes de cualquier tipo de cámaras, o de teledetección, las pantallas de nuestras computadoras o televisores, la imagen de proyectores, o cualquier dato de un modelo espacio-temporal (como por ejemplo los modelos climáticos), utilizan grillas para discretizar las mediciones en el espacio. 
+
+---
+
+## Retos del análisis de datos espaciales
+
+* Es común enfrentarse con problemas de memoria en el análisis espacial. Datos provenientes de imágenes satelitales, modelos climáticos, imágenes de alta resolución, etc. siempre van a retar la capacidad de nuestros computadores personales. De ahí la importancia del análisis de sub-regiones o la pregunta de ¿cuál es un buen resumen de los datos? en este contexto. 
+
+* Otro reto es la visualización, debido a que la mayoría de GIS (Geographical Information Systems) tienen maneras predeterminadas de presentar la información y no dejan mucho espacio para la creatividad. Además, guardar imágenes compuestas por muchos puntos, líneas, polígonos o grillas puede retar la capacidad de su memoria.
+
+* Además de estos dos detalles técnicos, el reto más importante en mi opinión es distinguir las fuentes de datos entre datos observacionales y datos experimentales. En este contexto es de suma importancia aclarar que en muchos estudios que utilizan datos espaciales, se habla erróneamente de causalidad y en esto hay que tener especial cuidado. 
+
+
+---
+
+## Discusiones comunes en la comunidad:
+
+* "Red herrings" o ruido en ecología geográfica: cómo distintos métodos de análisis de datos espaciales, o incluso distintas escalas de análisis llevan a resultados muy distintos. 
+
+* Interpretación de la autocorrelación espacial en el área de economía urbana: la presencia de autocorrelación espacial puede deberse a terceras variables no incluidas en el estudio. 
+
+* Implicaciones de la estructura de correlación espacial son distintas para cada área de aplicación, de ahí que es muy importante analizar los datos siempre con un criterio experto a mano.
+
+---
+
+## Paréntesis: ¿por qué usamos R para análisis de datos espaciales?
+
+* R se alimenta de contribuciones de cientos de usuarios alrededor del mundo. El grupo de estadística espacial de R ha hecho un esfuerzo por utilizar el paquete *sp* como referencia para la creación de nuevos paquetes. Esto no se da en todos los casos, por supuesto que existen [otros paquetes](https://cran.r-project.org/web/views/Spatial.html) que no siguen el mismo formato, pero si se aprende la estructura de datos de *sp* es muy fácil utilizar una gama de paquetes asociados y que están descritos en el siguiente diagrama:
+
+---
+
+## Paréntesis: ¿por qué usamos R para análisis de datos espaciales?
+
+Paquetes de R y su relación con *sp*. Bivand et al (2008)
+
+&lt;img src="figs/RGIS_Bivandetal.png" alt="Paquetes de R" style="width:900px;height:450px;"&gt;
+
+
+---
+
+## Paréntesis: ¿por qué usamos R para análisis de datos espaciales?
+
+
+Según el mismo autor, las ventajas de utilizar R (y el ambiente alrededor de *sp*) en este contexto son:
+
+* Es mucho más fácil mover y transformar datos a través de paquetes de estadística espacial.
+
+* Las nuevas clases de datos vienen con métodos que han sido probados y certificados por la comunidad, para graficar, imprimir, extraer subconjuntos, y resumir objetos espaciales, y también combinar tipos de datos espaciales.
+
+* Paquetes con interfaces para GIS, para leer y escribir archivos con formato GIS y para hacer cambios en las proyecciones de archivos de datos GIS.
+
+* Nuevos métodos alimentando el ecosistema de paquetes todos los días. 
+
+---
+
+## R y GIS 
+
+Comparación de software, Zhukov (2010)
+
+&lt;img src="figs/RGIS_zhukov.png" alt="Comparación" style="width:800px;height:400px;"&gt;
+
+---
+class: middle, inverse
+
+# Laboratorio 1
+
+1. Abra una cuenta en Github y cree un repositorio con el nombre de este curso. Enlace el repo con una versión local del mismo nombre.
+2. En su R local, van a crear un documento en Rmarkdown que se llame Lab1, y lo vamos a compilar para crear un archivo html.
+3. Ahora vamos a hacer un "add" y un "commit" de ese archivo a Github. 
+4. Una vez que ya sabe cómo hacer commits, entonces inicie con las instrucciones del Lab1 que están en el repo del curso.
+
+---
+class: center, middle, inverse
+
+
+# ¿Qué vimos hoy?
+
+Lectura del programa y detalles del curso.
+
+Análisis de Datos Espaciales (tipo de datos)
+
+¿Por qué usamos R?
+
+Relación entre R y GIS
+
+Laboratorio 1 + Asignación del Proyecto 
+
+---
+class: middle, inverse
+
+
+# Para la próxima clase
+
+1. Cargo-cult statistics: https://www.significancemagazine.com/2-uncategorised/593-cargo-cult-statistics-and-scientific-crisis
+
+2. Cuestionario y Slack.
+
+3. Capítulos 1 - 4 del libro de texto. 
+
+4. Avanzar en el laboratorio 1 (en curso)
+
+5. Pensar en opciones para el proyecto final. Algunas fuentes de datos:
+
+http://www.pbcgis.com/data/
+
+http://rspatial.org/analysis/rst/9-remotesensing.html
+
+https://www.nceas.ucsb.edu/scicomp/data
+
+https://spatialreserves.wordpress.com/
+
+6. Actualizar R y Rstudio (si quieren usarlo) a sus versiones más recientes, e instalar todos los paquetes utilizados en este código: http://www.rspatial.org/spatial/index.html
+
+---
+class: center, middle, inverse
+
+Slides creadas via R package [**xaringan**](https://github.com/yihui/xaringan).
+
+El chakra viene de [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:10",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
