@@ -17,7 +17,7 @@ Las clases grabadas se irán subiendo [aquí]()
     <tr>
     <td width="15%"> 13.08.2020 </td>
     <td width="10%">  <a href="SP1649_c01_2020.html">Clase 1</a>  </td>
-    <td width="25%">  Pendiente </td>
+    <td width="25%">  <a href="SP1649_ejemplo">Lab0</a> </td>
   </tr>
 </table>
 
