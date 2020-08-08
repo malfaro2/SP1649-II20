@@ -14,7 +14,7 @@ Entregas:
   </tr>
   <tr>
     <td width="30%"> 13.08.2020 </td>
-    <td width="30%"> <a href="Lab0.html">Lab0</a>  </td>
+    <td width="30%"> <a href="Lab0.Rmd">Lab0</a>  </td>
   </tr>
     <tr>
     <td width="30%">    </td>
