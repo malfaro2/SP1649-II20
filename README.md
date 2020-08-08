@@ -4,7 +4,7 @@
 
 Las evaluaciones y anuncios del curso se harán por medio de Mediación Virtual, este repositorio es para el material de clase, prácticas y vídeos que utilizaremos. 
 
-[Programa del curso]()
+[Programa del curso](https://malfaro2.github.io/SP1649-II20/SP1649-Espacial.pdf)
 
 Las clases grabadas se irán subiendo [aquí]() 
 
@@ -12,8 +12,12 @@ Las clases grabadas se irán subiendo [aquí]()
   <tr>
     <th width="15%"> Fecha </th>
     <th width="10%">  Clase </th>
-    <th width="50%">  Vídeos </th>
-    <th width="25%">  Tareas </th>
+    <th width="25%">  Laboratorio </th>
+  </tr>
+    <tr>
+    <td width="15%"> 13.08.2020 </td>
+    <td width="10%">  <a href="SP1649_c01_2020.html">Clase 1</a>  </td>
+    <td width="25%">  Pendiente </td>
   </tr>
 </table>
 
