@@ -10,8 +10,8 @@ Las clases grabadas se irán subiendo [aquí]()
 
 <table style="width:100%">
   <tr>
-    <th width="15%"> Fecha </th>
-    <th width="10%">  Clase </th>
+    <th width="10%"> Fecha </th>
+    <th width="25%">  Clase </th>
     <th width="25%">  Laboratorio </th>
   </tr>
     <tr>
