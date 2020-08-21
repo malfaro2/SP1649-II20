@@ -6,7 +6,7 @@ Las evaluaciones y anuncios del curso se harán por medio de Mediación Virtual,
 
 [Programa del curso](https://malfaro2.github.io/SP1649-II20/SP1649-Espacial.pdf)
 
-Las clases grabadas se irán subiendo [aquí]() 
+Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?list=PLW5rGCVcTo7NFnek2ni4WhNqty9Iu2qRA) 
 
 <table style="width:100%">
   <tr>
