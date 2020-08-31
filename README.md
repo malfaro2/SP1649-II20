@@ -31,8 +31,10 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
   </tr>
      <tr>
     <td width="10%"> 03.09.2020 </td>
-    <td width="25%">  <a href="https://keen-swartz-3146c4.netlify.app/plotting.html">Clase 4: Sección 8-10</a>  </td>
-    <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  </td>
+    <td width="25%">  <a href="https://keen-swartz-3146c4.netlify.app/plotting.html">Clase 4: Sección 8-10</a> <br>
+    <td width="25%">  <a href="https://geocompr.robinlovelace.net/adv-map.html</td>">Sección 8 Lovelace </a> </td>
+    <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  <br>
+    <td width="25%">  Lab1: Ejercicios 8.7 Lovelace  </td>
   </tr>
 </table>
 
