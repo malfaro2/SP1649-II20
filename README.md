@@ -34,7 +34,7 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
     <td width="25%">  <a href="https://keen-swartz-3146c4.netlify.app/plotting.html">Clase 4: Sección 8-10</a> <br>
                       <a href="https://geocompr.robinlovelace.net/adv-map.html">Sección 8 Lovelace </a> </td>
     <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  <br>
-                      Lab1: Ejercicios 8.7 Lovelace  </td>
+                      Lab1: Ejercicios 8.7 Lovelace (1 al 7 para entregar, pero les recomiendo trabajar en los otros como ejercicio).   </td>
   </tr>
 </table>
 
