@@ -39,7 +39,8 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
      <tr>
     <td width="10%"> 10.09.2020 </td>
     <td width="25%">  <a href="SP1649_c05_2020.html">Clase 5</a>  </td>
-    <td width="25%">  <a href="https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#53">Lab2</a>   </td>
+    <td width="25%">  <a href="https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#53">Lab2</a>  <br>
+       <a href=https://github.com/malfaro2/SP1649-II20/blob/master/london_street.csv">Datos</a> </td>
                       
   </tr>
        <tr>
