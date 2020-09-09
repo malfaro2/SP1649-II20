@@ -6,7 +6,7 @@ Las evaluaciones y anuncios del curso se harán por medio de Mediación Virtual,
 
 [Programa del curso](https://malfaro2.github.io/SP1649-II20/SP1649-Espacial.pdf)
 
-Las clases grabadas se irán subiendo [aquí]() 
+Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?list=PLW5rGCVcTo7NFnek2ni4WhNqty9Iu2qRA) 
 
 <table style="width:100%">
   <tr>
@@ -31,8 +31,10 @@ Las clases grabadas se irán subiendo [aquí]()
   </tr>
      <tr>
     <td width="10%"> 03.09.2020 </td>
-    <td width="25%">  <a href="https://keen-swartz-3146c4.netlify.app/plotting.html">Clase 4: Sección 8-10</a>  </td>
-    <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  </td>
+    <td width="25%">  <a href="https://keen-swartz-3146c4.netlify.app/plotting.html">Clase 4: Sección 8-10</a> <br>
+                      <a href="https://geocompr.robinlovelace.net/adv-map.html">Sección 8 Lovelace </a> </td>
+    <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  <br>
+                      Lab1: Ejercicios 8.7 Lovelace (1 al 7 para entregar, pero les recomiendo trabajar en los otros como ejercicio).   </td>
   </tr>
 </table>
 
