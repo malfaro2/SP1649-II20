@@ -23,7 +23,7 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
     <td width="10%"> 20.08.2020 </td>
     <td width="25%">  <a href="https://keen-swartz-3146c4.netlify.app/intro.html">Clase 2: Sección 1-4</a>  </td>
     <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  <br>
-                      Lab1: Ejercicios 8.7 Lovelace (1 al 7 para entregar, pero les recomiendo trabajar en los otros como ejercicio). 
+                      Lab1: Ejercicios 8.7 Lovelace (1 al 7 para entregar, pero les recomiendo trabajar en los otros como ejercicio). </td>
   </tr>
      <tr>
     <td width="10%"> 27.08.2020 </td>
