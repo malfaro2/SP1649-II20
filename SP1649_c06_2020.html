@@ -1,0 +1,892 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Tópicos de Estadística Espacial Aplicada</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Semana 6" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Tópicos de Estadística Espacial Aplicada
+## II Semestre 2020
+### Semana 6
+### updated: 2020-09-08
+
+---
+
+
+
+
+class: middle
+# ¿Qué hemos visto hasta ahora?
+
+* Manejo computacional de clases de datos espaciales.
+
+* *Housekeeping* de manejo de datos espaciales.
+
+* Visualización de los distintos tipos de datos espaciales.
+
+* Una primera idea de los proyectos finales del curso.
+
+* Estadística descriptiva y un poco de inferencial para procesos puntuales.
+
+---
+class: middle
+# Mapa de Ruta para este semestre
+
+* Procesos Puntuales (esta y las próxima semana)
+
+    - Ejemplos (casos y preguntas de investigación asociadas)
+    - Definiciones (aspectos teóricos más importantes)
+    - Principios, supuestos (retos de la aplicación)
+    - ¿Cómo se hace en R?
+    - Laboratorio 2
+    
+* Geoestadística + Lab 3 (3 semanas)
+* GAMs + Lab 4 (2 semanas)
+* Estadística de Áreas + Lab 5 (3 semanas)
+
+---
+
+# Spatial Point Pattern Analysis - Procesos Puntuales
+
+&gt; "Stochastic process in which we observe the locations of some events of interest within a boundary region" (Bivand et al, 2008)
+
+&gt; "Stochastic mechanism which generates a countable set of events `\(s_i\)` in a plane" (Diggle, 2003)
+
+[Spatial Point Pattern Analysis and Its Application in Geographical Epidemiology, from Anthony C. Gatrell, Trevor C. Bailey, Peter J. Diggle, Barry S. Rowlingson (1996)](https://msu.edu/~ashton/classes/866/papers/gatrell_ppa.pdf)
+
+---
+
+# Spatial Point Pattern Analysis - Procesos Puntuales
+
+* Lo que vemos en un mapa es un patrón, o tal vez algunos patrones mezclados.
+
+* No es fácil trabajar desde el patrón del mapa hasta el proceso o procesos que lo generaron.
+
+* Utilizando una variedad de enfoques, podemos explorar y analizar patrones de puntos, revisando un capítulo importante en el desarrollo de geografía cuantitativa.
+
+* En la práctica, también veremos cómo podemos probar diferentes enfoques, y cómo sus supuestos afectan nuestras conclusiones.
+
+---
+
+## Análisis preliminar de un proceso puntual espacial - Preguntas
+
+Locations of 584 trees observed with their diameter at breast height.
+
+
+```r
+plot(longleaf,main="longleaf")
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+
+¿Pueden las marcas explicar la intensidad de la cantidad de árboles? ¿Un árbol grande tiende a tener árboles más pequeños cerca de él?
+
+---
+
+Otro ejemplo: Locations of 97 ants categorised into two species.
+
+
+```r
+plot(ants,main="ants", cols=c(3,2),use.marks=T)
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+¿Hay competencia dentro de una especie? ¿o entre las dos especies?
+
+---
+
+3604 locations of trees observed with spatial covariates.
+
+
+```r
+M &lt;- persp(bei.extra$elev,theta=-45, phi=18, expand=7, border=NA,
+apron=TRUE, shade=0.3,box=FALSE, visible=TRUE,main="")
+perspPoints(bei, Z=bei.extra$elev, M=M, pch=16, cex=0.3, col="chartreuse")
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+¿Puede el campo de elevación explicar la disposición de los árboles? ¿Entre un gran número de covariables espaciales, cuáles parecen tener una asociación mayor?
+
+---
+
+### Aleatoriedad Espacial Completa
+
+*Complete Spatial Randomness (CSR)* los eventos están distribuidos independientemente, aleatoriamente y uniformemente en todo el área de estudio.
+
+¿Cómo se contesta la pregunta de si los datos se han generado o no bajo CSR?
+
+* Función G y Función F que vimos en la clase pasada.
+
+---
+
+
+```r
+data(japanesepines)
+spjpines &lt;- as(japanesepines, "SpatialPoints")
+spjpines1 &lt;- elide(spjpines, scale=TRUE, unitsq=TRUE)
+pppjap &lt;- as(spjpines1, "ppp")
+data(redwoodfull)
+spred &lt;- as(redwoodfull, "SpatialPoints")
+data(cells)
+spcells &lt;- as(cells, "SpatialPoints")
+dpp&lt;-data.frame(rbind(coordinates(spjpines1), coordinates(spred), 
+   coordinates(spcells)))
+njap&lt;-nrow(coordinates(spjpines1))
+nred&lt;-nrow(coordinates(spred))
+ncells&lt;-nrow(coordinates(spcells))
+dpp&lt;-cbind(dpp,c(rep("JAPANESE",njap), rep("REDWOOD", nred), rep("CELLS", ncells))) 
+names(dpp)&lt;-c("x", "y", "DATASET")
+```
+
+---
+
+
+```r
+print(xyplot(y~x|DATASET, data=dpp, pch=19,aspect=1))
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+### Función G: Distancia de un evento al evento más cercano
+
+Fórmula: 
+
+`$$\hat{G}(r) = \frac{\# \{d_i: d_i \leq r_i \forall i \}}{n}$$`
+
+Bajo CSR, el valor de G debería ser:
+
+`$$G(r) = 1 - exp(-\lambda \pi r^2)$$`
+
+donde `\(\lambda\)` es el número de eventos por unidad de área (o intensidad).
+
+---
+
+Podemos comparar la función teórica con la empírica, generando Monte Carlo **envelopes** de la siguiente manera:
+
+
+
+```r
+set.seed(120109)
+# r &lt;- seq(0, sqrt(2)/6, by = 0.005)
+r &lt;- seq(0, sqrt(2)/6, by = 0.001)
+envjap &lt;- envelope(as(spjpines1, "ppp"), 
+              fun=Gest, r=r, nrank=2, nsim=99)
+envred &lt;- envelope(as(spred, "ppp"), 
+              fun=Gest, r=r, nrank=2, nsim=99)
+envcells &lt;- envelope(as(spcells, "ppp"), 
+              fun=Gest, r=r, nrank=2, nsim=99)
+Gresults &lt;- rbind(envjap, envred, envcells) 
+Gresults &lt;- cbind(Gresults, 
+   y=rep(c("JAPANESE", "REDWOOD", "CELLS"), each=length(r)))
+```
+
+---
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+nrank hace que trabajemos con un `\(96\%\)` de confianza de la función teórica (por default es CSR pero puede cambiarse). Ver ?envelope
+
+---
+
+### Función F: Distancia de un punto al evento más cercano
+
+También se llama la función del espacio vacío, y es una medida del espacio vacío que en promedio existe entre dos eventos.
+
+Bajo CSR, el valor de F debería ser:
+
+`$$F(r) = 1 - exp(-\lambda \pi r^2)$$`
+
+donde `\(\lambda\)` es el número de eventos por unidad de área (o intensidad).
+
+Igual que antes, podemos comparar la función teórica con la empírica, generando Monte Carlo **envelopes** de la siguiente manera:
+
+---
+
+
+```r
+set.seed(30)
+Fenvjap&lt;-envelope(as(spjpines1, "ppp"), fun=Fest, r=r, nrank=2, nsim=99)
+Fenvred&lt;-envelope(as(spred, "ppp"), fun=Fest, r=r, nrank=2, nsim=99)
+Fenvcells&lt;-envelope(as(spcells, "ppp"), fun=Fest, r=r, nrank=2, nsim=99)
+Fresults&lt;-rbind(Fenvjap, Fenvred, Fenvcells)
+Fresults&lt;-cbind(Fresults, 
+   y=rep(c("JAPANESE", "REDWOOD", "CELLS"), each=length(r)))
+```
+
+---
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
+Al igual que antes, nrank hace que trabajemos con un `\(96\%\)` de confianza de la función teórica (por default es CSR pero puede cambiarse).
+
+---
+
+## Análisis estadístico de un proceso puntual espacial 
+
+Ya describimos la densidad espacial en la clase pasada, y también hablamos de la intensidad del proceso puntual (que es proporcional a la densidad): para dos procesos con la misma densidad espacial, pero con distintas intensidades, tenemos que el número de eventos observaos será mayor para el proceso con la mayor intensidad. 
+
+Ahora, ¿podemos modelar la intensidad utilizando otras variables relacionadas con los eventos?
+
+---
+
+### Proceso Poisson homogéneo 
+
+HPP (Homogeneous Poisson Process) en una región A debe cumplir con los siguientes supuestos:
+
+1. El número de eventos en A, con un área `\(|A|\)`, se distribuye como Poisson con media `\(\lambda|A|\)`, donde `\(\lambda\)` es la intensidad (constante en todo el proceso puntual).
+
+2. Dado que se observan `\(n\)` eventos en la región `\(A\)`, se distribuyen uniformemente en `\(A\)`.
+
+El HPP es estacionario e isotrópico. Estacionario porque la intensidad es constante e isotrópico porque la intensidad de segundo orden depende solamente de la posición relativa de dos puntos (es decir, de la distancia y la dirección). Esto implica que el HPP es la definición formal de un proceso puntual que sigue una distribución CSR.
+
+---
+
+### Proceso Poisson no homogéneo 
+
+El supuesto de homogeneidad no es realista en la mayoría de los casos. El IPP (inhomogeneous Poisson Process) es una generalización del HPP que permite modelar una intensidad `\(\lambda(s)\)` sin asumir que es constante en todo el área de estudio A, o específicamente como función de las ubicaciones.
+
+---
+
+### Estimación de la Intensidad
+
+Para HPP: 
+`$$\# \text{de eventos observados} = \int_A \lambda dx$$`
+Estimador insesgado para la intensidad: `\(n / |A|\)` donde `\(|A|\)` es el área de la región A.
+
+Para IPP la estimación se puede realizar de muchas maneras: técnicas paramétricas (con algún supuesto acerca una función de distribución cuyos parámetros se pueden estimar usando MLE), no paramétricas (con kernels).
+
+El estimador más común en este caso es:
+
+`$$\hat{\lambda}(x) = \frac{1}{h^2} \sum_{i=1}^{n}\kappa \left( \frac{||x - x_i||}{h}\right)/q(||x||)$$`
+
+donde `\(\kappa(u)\)` es una función núcleo simétrica y bivariada, y `\(q(||x||)\)` es una corrección de borde para compensar las observaciones perdidas (o no observadas) que ocurren cuando `\(x\)` se encuentra cerca del borde. `\(h\)` es el ancho de banda que comentamos en la clase pasada.
+
+---
+
+### Opciones de funciones Kernel:
+
+https://en.wikipedia.org/wiki/Kernel_(statistics)#Kernel_functions_in_common_use
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+
+
+```r
+mserwq&lt;-mse2d(as.points(coordinates(spred)),
+ as.points(list(x=c(0,1,1,0), y=c(0,0,1,1))), 100, .15)
+bwq&lt;-mserwq$h[which.min(mserwq$mse)]
+mserw&lt;-bw.diggle(as(spred, "ppp"))
+bw&lt;-as.numeric(mserw)
+plot(mserwq$h, mserwq$mse, xlab="Bandwidth", ylab="MSE", type="l", ylim=c(-2,50), main="Quartic kernel")
+i&lt;-which.min(mserwq$mse)
+points(mserwq$h[i], mserwq$mse[i])
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+plot(mserw, main="Gaussian kernel", xlab="Bandwidth", ylab="MSE")
+points(attr(mserw, "h")[attr(mserw, "iopt")], bw)
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+poly &lt;- as.points(list(x = c(0, 0, 1, 1), y = c(0, 1, 1, 0)))
+sG &lt;- Sobj_SpatialGrid(spred, maxDim=100)$SG
+grd &lt;- slot(sG, "grid")
+k0 &lt;- spkernel2d(spred, poly, h0=bw, grd)
+k1 &lt;- spkernel2d(spred, poly, h0=.05, grd)
+k2 &lt;- spkernel2d(spred, poly, h0=.1, grd)
+k3 &lt;- spkernel2d(spred, poly, h0=.15, grd)
+df &lt;- data.frame(k0=k0, k1=k1, k2=k2, k3=k3) 
+kernels &lt;- SpatialGridDataFrame(grd, data=df)
+cc &lt;- coordinates(kernels)
+xy&lt;-list(x=cc[,1], y=cc[,2])
+k4&lt;-density(as(spred, "ppp"), .5*bw, dimyx=c(100, 100), xy=xy)
+kernels$k4&lt;-as(k4, "SpatialGridDataFrame")$v
+k5&lt;-density(as(spred, "ppp"), .5*.05, dimyx=c(100, 100), xy=xy)
+kernels$k5&lt;-as(k5, "SpatialGridDataFrame")$v
+k6&lt;-density(as(spred, "ppp"), .5*.1, dimyx=c(100, 100), xy=xy)
+kernels$k6&lt;-as(k6, "SpatialGridDataFrame")$v
+k7&lt;-density(as(spred, "ppp"), .5*.15, dimyx=c(100, 100), xy=xy)
+kernels$k7&lt;-as(k7, "SpatialGridDataFrame")$v
+gp &lt;- brewer.pal(8, "Reds")
+```
+
+---
+
+
+```r
+print(spplot(kernels, at=c(0, 1, 2, 5, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000), col.regions=colorRampPalette(gp)(15)[1:12], 
+names.attr=c(paste("Q bw=",round(bw, digits=4), sep="", collapse=""),
+"Q bw=0.05", "Q bw=0.1","Q bw=0.15", paste("G bw=", round(.5*bw, digits=4),
+ sep="", collapse=""), "G bw=0.025", "G bw=0.05","G bw=0.075"), cex=0.7, colorkey=FALSE))
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+Lo más importante en este caso es el ancho de banda y no la función núcleo (kernel).
+
+---
+
+### Verosimilitud de un proceso Poisson no homogéneo
+
+`$$L(\lambda) = \sum_{i=1}^{n}\log \lambda(x_i) - \int_A \lambda(x)dx$$`
+
+Para estimaciones paramétricas:
+
+`$$\log \lambda(x) = \sum_{j=1}^{p}\beta_jz_j(x)$$`
+
+con `\(z_j(x)\)` como covariables medidas en una ubicación `\(x\)`.
+
+---
+
+Veamos cómo se hace en R (función):
+
+
+```r
+#Fit parametric model
+loglambda&lt;-function(x, alpha, beta)
+{
+    l&lt;-alpha+sum(beta*c(x, x*x, prod(x)))
+    return(l)
+}
+L&lt;-function(alphabeta, x)
+{
+    l&lt;-apply(x,1,loglambda, alpha=alphabeta[1], beta=alphabeta[-1])
+    l&lt;-sum(l)
+    intL&lt;-adaptIntegrate(lowerLimit=c(0,0), upperLimit=c(1,1), fDim=1,
+        tol=1e-8, f=function(x, alpha=alphabeta[1], beta=alphabeta[-1])
+        {
+            exp(loglambda(x, alpha, beta))
+    })
+    l&lt;-l-intL$integral
+    return(l)#Optim minimises
+}
+```
+
+---
+
+Veamos cómo se hace en R (función):
+
+
+```r
+data(lansing)
+x&lt;-as.points(lansing[lansing$marks=="maple",])
+#Maximise log-likelihood
+optbeta&lt;-optim(par=c(log(514),0,0,0,0,0), fn=L, control=list(maxit=1000, fnscale=-1), x=x)
+grd &lt;- GridTopology(cellcentre.offset=c(0.005,0.005), cellsize=c(0.01, 0.01),
+  cells.dim=c(100, 100))
+lambda&lt;-exp(apply(coordinates(grd),1, function(X, alpha, beta)
+    {
+        loglambda(X, alpha, beta)
+    }, alpha=optbeta$par[1], beta=optbeta$par[-1]
+ ))
+parint&lt;-SpatialGridDataFrame(grd, data=data.frame(intensity=lambda))
+lyt&lt;-list("sp.points", SpatialPoints(x), pch=19, col="black", cex=0.7)
+```
+
+---
+
+
+```r
+print(spplot(parint, at=seq(0,1400,length.out=8),
+ col.regions=colorRampPalette(gp)(7), sp.layout=list(lyt)))
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+
+---
+
+
+```r
+lmaple&lt;-lansing[lansing$marks=="maple",]
+ppm(Q=lmaple, trend=~x+y+I(x^2)+I(y^2)+I(x*y))
+```
+
+```
+## Nonstationary multitype Poisson process
+## 
+## Possible marks: 'blackoak', 'hickory', 'maple', 'misc', 'redoak' and 'whiteoak'
+## 
+## Log intensity:  ~x + y + I(x^2) + I(y^2) + I(x * y)
+## 
+## Fitted trend coefficients:
+## (Intercept)           x           y      I(x^2)      I(y^2)    I(x * y) 
+##   3.7310742   5.6400643  -0.7663636  -5.0115142  -1.1983209   0.6375824 
+## 
+##               Estimate      S.E.    CI95.lo     CI95.hi Ztest       Zval
+## (Intercept)  3.7310742 0.2542004  3.2328505  4.22929795   *** 14.6776855
+## x            5.6400643 0.7990009  4.0740514  7.20607727   ***  7.0588964
+## y           -0.7663636 0.6990514 -2.1364792  0.60375200       -1.0962907
+## I(x^2)      -5.0115142 0.7011631 -6.3857686 -3.63725974   *** -7.1474300
+## I(y^2)      -1.1983209 0.6428053 -2.4581962  0.06155433       -1.8642051
+## I(x * y)     0.6375824 0.6989167 -0.7322691  2.00743391        0.9122439
+```
+---
+
+
+### Propiedades de Segundo Orden
+
+Miden la fuerza y el tipo de interacciones entre los eventos del proceso puntual. Tipos de interacciones: clusters o competencia (para esto hay términos específicos en biología, epidemiología, etc.). La función teórica para el CRS es:
+
+`$$K(s) = \lambda^{-1} E(N_0(s))$$`
+
+Es decir, el número de eventos que se encuentran hasta una distancia dada para un evento en particular.
+
+---
+
+
+```r
+set.seed(30)
+Kenvjap&lt;-envelope(as(spjpines1, "ppp"), fun=Kest, r=r, nrank=2, nsim=99)
+Kenvred&lt;-envelope(as(spred, "ppp"), fun=Kest, r=r, nrank=2, nsim=99)
+Kenvcells&lt;-envelope(as(spcells, "ppp"), fun=Kest, r=r, nrank=2, nsim=99)
+Kresults&lt;-rbind(Kenvjap, Kenvred, Kenvcells)
+Kresults&lt;-cbind(Kresults, 
+   y=rep(c("JAPANESE", "REDWOOD", "CELLS"), each=length(r)))
+```
+
+---
+
+
+```r
+print(xyplot((obs-theo)~r|y , data=Kresults, type="l",
+   ylim= c(-.06, .06), ylab=expression(hat(K) (r)  - pi * r^2),
+   panel=function(x, y, subscripts) {
+      Ktheo&lt;- Kresults$theo[subscripts]
+      lpolygon(c(r, rev(r)),
+      c(Kresults$lo[subscripts]-Ktheo, rev(Kresults$hi[subscripts]-Ktheo)),
+        border="gray", col="gray"
+      )
+      llines(r, Kresults$obs[subscripts]-Ktheo, lty=2, lwd=1.5, col="black")
+}))
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+## Otro ejemplo de IPP
+
+
+```r
+intenfun &lt;- function(x, y) 200 * x
+plot(rpoispp(intenfun, lmax = 200), main = "")
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+```r
+intenim &lt;- as.im(intenfun, dimyx = c(100, 100), W = unit.square())
+plot(rpoispp(intenim), main = "")
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-21-2.png)&lt;!-- --&gt;
+
+---
+
+## Otro ejemplo de IPP
+
+
+La función de ajuste se llama ppm (point process model) y es muy similar a las funciones de ajuste del modelo en R como lm y glm. El estadístico `\(S(u)\)` está especificado por una fórmula de lenguaje R, como las fórmulas utilizadas para especificar la relación sistemática en una modelo lineal o modelo lineal generalizado.
+
+
+
+---
+
+La sintaxis básica es: `\(ppm (X, ~ tendencia)\)`
+
+donde `\(X\)` es el conjunto de datos del patrón de puntos, y ~ la tendencia es un R fórmula sin lado izquierdo. Esto debe verse como una modelo con enlace de registro, por lo que la fórmula ~ tendencia especifica el formulario del logaritmo de la función de intensidad.
+
+
+```r
+data(bei)
+ppm(bei, ~ x + y)
+```
+
+```
+## Nonstationary Poisson process
+## 
+## Log intensity:  ~x + y
+## 
+## Fitted trend coefficients:
+##   (Intercept)             x             y 
+## -4.7245290274 -0.0008031288  0.0006496090 
+## 
+##                  Estimate         S.E.       CI95.lo       CI95.hi Ztest
+## (Intercept) -4.7245290274 4.305915e-02 -4.8089234185 -4.6401346364   ***
+## x           -0.0008031288 5.863311e-05 -0.0009180476 -0.0006882100   ***
+## y            0.0006496090 1.157132e-04  0.0004228153  0.0008764027   ***
+##                    Zval
+## (Intercept) -109.721827
+## x            -13.697530
+## y              5.613957
+```
+
+---
+
+## Otro ejemplo de IPP 
+
+
+Utilice el conjunto de datos "bei" del paquete spatstat.data, con el objetivo de determinar si existen posibles conglomerados de árboles en área específica. Utilice el código de este [cuaderno de trabajo](https://moc.online.uni-marburg.de/doku.php?id=courses:bsc:project-seminar-lidar:lecture-notes:pl-ln-70), y justifique por qué tiene sentido utilizarlo con los datos bei (del paquete spatstat).
+
+Veamos la ayuda de la función ppp: https://www.rdocumentation.org/packages/spatstat/versions/1.60-1/topics/ppm
+
+---
+
+
+## Otro ejemplo de IPP
+
+En este caso, la función de intensidad ajustada es:
+`\(\lambda_{\theta}((x; y)) = \exp(-4.724529 + -0.000803x + 0.000649y)\)`
+
+Para un modelo de Poisson no homogéneo con una intensidad que es  log-cuadrático en las coordenadas cartesianas, es decir, tal que `\(\log((x; y))\)` es un cuadrático en `\(x\)` e `\(y\)`:
+
+---
+
+
+
+```r
+ppm(bei, ~polynom(x, y, 2))
+```
+
+```
+## Nonstationary Poisson process
+## 
+## Log intensity:  ~x + y + I(x^2) + I(x * y) + I(y^2)
+## 
+## Fitted trend coefficients:
+##   (Intercept)             x             y        I(x^2)      I(x * y) 
+## -4.275762e+00 -1.609187e-03 -4.895166e-03  1.625968e-06 -2.836387e-06 
+##        I(y^2) 
+##  1.331331e-05 
+## 
+##                  Estimate         S.E.       CI95.lo       CI95.hi Ztest
+## (Intercept) -4.275762e+00 7.811138e-02 -4.428857e+00 -4.122666e+00   ***
+## x           -1.609187e-03 2.440907e-04 -2.087596e-03 -1.130778e-03   ***
+## y           -4.895166e-03 4.838993e-04 -5.843591e-03 -3.946741e-03   ***
+## I(x^2)       1.625968e-06 2.197200e-07  1.195325e-06  2.056611e-06   ***
+## I(x * y)    -2.836387e-06 3.511163e-07 -3.524562e-06 -2.148212e-06   ***
+## I(y^2)       1.331331e-05 8.487506e-07  1.164979e-05  1.497683e-05   ***
+##                   Zval
+## (Intercept) -54.739290
+## x            -6.592577
+## y           -10.116084
+## I(x^2)        7.400185
+## I(x * y)     -8.078197
+## I(y^2)       15.685769
+```
+
+---
+
+## Otro ejemplo de IPP
+
+Para un modelo con intensidades constantes pero desiguales en cada lado de la línea vertical x = 500, la variable explicativa `\(S(u)\)` debería ser un factor con dos niveles, decir izquierda y derecha, tomando el valor A la izquierda cuando la ubicación u está a la izquierda de la línea `\(x = 500\)`.
+
+
+```r
+side &lt;- function(z) factor(ifelse(z &lt; 500, "left", "right"))
+ppm(bei, ~side(x))
+```
+
+```
+## Nonstationary Poisson process
+## 
+## Log intensity:  ~side(x)
+## 
+## Fitted trend coefficients:
+##  (Intercept) side(x)right 
+##   -4.8026460   -0.2792705 
+## 
+##                Estimate       S.E.   CI95.lo   CI95.hi Ztest        Zval
+## (Intercept)  -4.8026460 0.02207554 -4.845913 -4.759379   *** -217.555092
+## side(x)right -0.2792705 0.03364014 -0.345204 -0.213337   ***   -8.301703
+```
+
+---
+
+Para los datos del bosque tropical, es posible que prefiramos un modelo Poisson no homogéneo con intensidad que es una función loglineal de la pendiente, es decir
+`\(\lambda(u) = \exp(\beta_0 + \beta_1Z(u))\)`
+donde `\(\beta_0\)` y `\(\beta_1\)` son parámetros y `\(Z(u)\)` es la pendiente en la ubicación u.
+
+
+```r
+slope &lt;- bei.extra$grad
+ppm(bei, ~slope, covariates = list(slope = slope))
+```
+
+```
+## Nonstationary Poisson process
+## 
+## Log intensity:  ~slope
+## 
+## Fitted trend coefficients:
+## (Intercept)       slope 
+##   -5.391053    5.026710 
+## 
+##              Estimate       S.E.   CI95.lo   CI95.hi Ztest      Zval
+## (Intercept) -5.391053 0.03001787 -5.449887 -5.332219   *** -179.5948
+## slope        5.026710 0.24534296  4.545847  5.507573   ***   20.4885
+```
+
+---
+
+Puede ser más apropiado que el modelo `\(\lambda(u) = \beta Z(u)\)` donde nuevamente Z (u) es la pendiente en `\(u\)`. Equivalentemente
+`\(\log \lambda(u) = \log \beta_0 + \log Z(u)\)`. En este caso no hay ningún coeficiente delante del término `\(\log Z(u)\)` porque este término es un offset. Para ajustar este modelo:
+
+
+```r
+ppm(bei, ~offset(log(slope)), covariates = list(slope = slope))
+```
+
+```
+## Nonstationary Poisson process
+## 
+## Log intensity:  ~offset(log(slope))
+## 
+## Fitted trend coefficient:  (Intercept) = -2.427165
+## 
+##              Estimate       S.E.   CI95.lo   CI95.hi Ztest      Zval
+## (Intercept) -2.427165 0.01665742 -2.459813 -2.394517   *** -145.7108
+```
+
+---
+
+
+## Predecir la intensidad:
+
+Los valores de la función de intensidad se pueden calcular en una grilla en la ventana para ajustar un modelo a través de la función de predicción. Alternativamente, podemos simplemente trazar el objeto ajustado que llama la función predict y traza la función de intensidad:
+
+
+```r
+fit &lt;- ppm(bei, ~x + y)
+plot(fit, how = "image", se = FALSE, pause = FALSE)
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-27-1.png)&lt;!-- --&gt;
+
+---
+
+## Predecir la intensidad:
+
+Ahora revisemos la variancia de los estimados, o la matriz de variancia covariancia de `\(\hat{\theta}\)`:
+
+
+```r
+vcov(fit)
+```
+
+```
+##               (Intercept)             x             y
+## (Intercept)  1.854091e-03 -1.491267e-06 -3.528289e-06
+## x           -1.491267e-06  3.437842e-09  1.208410e-14
+## y           -3.528289e-06  1.208410e-14  1.338955e-08
+```
+
+![Variancia de las estimaciones](figs/vcov.png)
+
+---
+
+También es posible trazar la asociación de una sola covariable en el modelo. El comando **effectfun** calcula la intensidad del modelo ajustado como una función de una de sus covariables. Esto es útil sobretodo si el modelo solo tiene una covariable.
+
+
+```r
+fit &lt;- ppm(bei, ~slope, covariates = list(slope = slope))
+plot(effectfun(fit, "slope"), main = "")
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-29-1.png)&lt;!-- --&gt;
+
+---
+
+El análisis de variancia para un modelo Poisson anidado, puede hacerse usando los comandos de ANOVA:
+
+
+```r
+fitnull &lt;- update(fit, ~1)
+anova(fitnull, fit, test = "Chi")
+```
+
+```
+## Analysis of Deviance Table
+## 
+## Model 1: ~1 	 Poisson
+## Model 2: ~slope 	 Poisson
+##   Npar Df Deviance  Pr(&gt;Chi)    
+## 1    1                          
+## 2    2  1   383.11 &lt; 2.2e-16 ***
+## ---
+## Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
+```
+
+En este caso el modelo con la pendiente es el preferido.
+
+---
+
+### AIC Akaike Information Criterion
+
+El proceso de Poisson homogéneo no está anidado en el modelo en que la intensidad es proporcional a la pendiente. Una posibilidad aquí es utilizar el AIC para la selección del modelo:
+
+
+```r
+fit &lt;- ppm(bei, ~offset(log(slope)), covariates = list(slope = slope))
+fitnull &lt;- ppm(bei, ~1)
+AIC(fit)
+```
+
+```
+## [1] 42494.42
+```
+
+```r
+AIC(fitnull)
+```
+
+```
+## [1] 42763.92
+```
+
+El AIC más pequeño es el del modelo con la pendiente.
+
+---
+
+### Simulación de un modelo ajustado:
+
+Un modelo Poisson ajustado puede simularse usando la siguiente función. Esto es útil para comparar los simulados con los observados. 
+
+
+```r
+X &lt;- simulate(fit)
+plot(X, main = "")
+```
+
+![](SP1649_c06_2020_files/figure-html/unnamed-chunk-32-1.png)&lt;!-- --&gt;
+
+---
+
+## Laboratorio 2: Crimen en Londres.
+
+El objetivo de este laboratorio es que Ud elabore un informe **corto** basado en este tutorial: http://r-video-tutorial.blogspot.com/2015/05/introductory-point-pattern-analysis-of.html
+
+El primer paso es correr el código y asegurarse de que todo funciona y que entiende qué está haciendo el código. El segundo es escribir un informe corto describiendo los métodos que se usaron y las preguntas de investigación que se contestaron con los resultados presentados. El formato recomendado es .md para que forme parte de sus repositorios.
+
+Los datos están en el repo del curso (london-street.csv).
+
+---
+class: center, middle, inverse
+
+Slides creadas via R package [**xaringan**](https://github.com/yihui/xaringan).
+
+El chakra viene de [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:10",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>

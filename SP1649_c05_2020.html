@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+  <head>
+    <title>Tópicos de Estadística Espacial Aplicada</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Semana 5" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Tópicos de Estadística Espacial Aplicada
+## II Semestre 2020
+### Semana 5
+### updated: 2020-09-08
+
+---
+
+
+
+
+class: middle
+# Detalles del curso
+
+* Actualizaciones de martes por la noche en el repositorio.
+
+* Toda la información de este curso está en el repositorio o en Slack. Si no encuentran algo, no duden en preguntarlo vía Slack.
+
+# Formato de entregas
+
+* *Recomendado vía Github*. La hora de entrega para laboratorios, avances del proyecto y el proyecto final siempre será a las 5pm en el día especificado. Deben enviar un mensaje con el commit vía Slack.
+
+* Al final del semestre cada uno de Uds tendrá un repositorio con todas las entregas del curso.
+
+* Si prefieren no trabajar con Github, cada una de las entregas será solamente en UN pdf, vía Slack.
+
+
+---
+class: middle
+# ¿Qué hemos visto hasta ahora?
+
+* Manejo computacional de clases de datos espaciales.
+
+* *Housekeeping* de manejo de datos espaciales.
+
+* Visualización de los distintos tipos de datos espaciales.
+
+* Una primera idea de los proyectos finales del curso.
+
+# Proyecto final (con 4 entregas)
+
+* Entrega 2: un [póster](https://www.overleaf.com/latex/templates/dtu-poster/nfchvswyhcnq) definiendo y describiendo el problema de investigación, y con estadísticas descriptivas (tanto en forma de tablas como mapas, gráficos).
+
+* Entrega 3: Presentación corta que explique al menos dos métodos para contestar la pregunta de investigación definida.
+
+* Entrega 4: Proyecto final. Debe incluir: datos, código y un documento en forma de artículo científico. [Ejemplo de repositorio con código y datos](https://github.com/andresarguedas/Intoxicaciones-CR-2007-2014), [template para el artículo](https://www.overleaf.com/latex/templates/formato-articulo-universidad-de-cundinamarca/cyvmrbnjykhw).
+
+---
+class: middle
+# Mapa de Ruta para este semestre
+
+* Procesos Puntuales (esta y las próxima semana)
+
+    - Ejemplos (casos y preguntas de investigación asociadas)
+    - Definiciones (aspectos teóricos más importantes)
+    - Principios, supuestos (retos de la aplicación)
+    - ¿Cómo se hace en R?
+    - Laboratorio 2
+    
+* Geoestadística + Lab 3 (3 semanas)
+* GAMs + Lab 4 (2 semanas)
+* Estadística de Áreas + Lab 5 (3 semanas)
+
+
+---
+
+# Spatial Point Pattern Analysis - Procesos Puntuales
+
+&gt; "Stochastic process in which we observe the locations of some events of interest within a boundary region" (Bivand et al, 2008)
+
+&gt; "Stochastic mechanism which generates a countable set of events `\(s_i\)` in a plane" (Diggle, 2003)
+
+[Spatial Point Pattern Analysis and Its Application in Geographical Epidemiology, from Anthony C. Gatrell, Trevor C. Bailey, Peter J. Diggle, Barry S. Rowlingson (1996)](https://msu.edu/~ashton/classes/866/papers/gatrell_ppa.pdf)
+
+---
+
+# Definiciones 
+
+¿Qué es un evento en este caso? ¿cómo se puede definir la región de interés? ¿por qué es importante definirla? 
+
+**Evento**: La ubicación de la ocurrencia del fenómeno espacial observada. Se diferencia de otras ubicaciones arbitrarias en la región bajo estudio.  
+
+**Proceso puntual mapeado**: Todos los eventos de un área `\(R\)` bajo estudio que han sido registrados. 
+
+**Punto**: ubicaciones arbitrarias o ubicaciones que no sean de los eventos. 
+
+**Muestra de un proceso puntual**: Eventos que han sido recolectados de una muestra de distintas áreas. 
+
+**Ventana**: Subárea bajo estudio
+
+---
+class: middle
+
+&lt;div class="figure"&gt;
+&lt;img src="figs/window.png" alt="Ejemplo de ventana" width="70%" /&gt;
+&lt;p class="caption"&gt;Ejemplo de ventana&lt;/p&gt;
+&lt;/div&gt;
+
+Fuente: http://www.sethspielman.org/courses/geog5023/lectures/Lecture_9_2015.pdf
+
+---
+
+# Objetivos de investigación para procesos puntuales
+
+* Determinar si los puntos tienen una tendencia a un patrón sistemático (por ejemplo, si presentan agrupaciones o si tienen un patrón regular).
+
+* Si existe un patrón sistemático, entonces examinar cuál es la escala espacial en la que ocurre. También, examinar si algunas agrupaciones están asociadas con la proximidad a algún factor en particular. 
+
+* Estimar la variación en la intensidad de los puntos a través de la región bajo estudio. 
+
+* Buscar modelos que describan los procesos puntuales. 
+
+---
+
+# El análisis enfatiza en:
+
+* Los eventos pueden tener atributos que pueden ser utilizados para distinguir tipos de agrupaciones, pero es su ubicación lo que nos interesa. 
+
+* El énfasis está en los patrones de las ubicaciones.
+
+* El aspecto estocástico es la posible (o más probable) ubicación de los eventos. 
+
+* ¿El patrón exhibe agrupaciones o regularidad?
+
+* De existir un patrón ¿en cuáles escalas espaciales existe?
+
+---
+
+# Ejemplos
+
+* Casos puntuales de morbilidad o mortalidad.
+
+* Tipos de crímenes cometidos. 
+
+* Epicentro de sismos. 
+
+* Distribución de plantas. 
+
+* ¿Otros?
+
+--
+
+Un proceso puntual es un ejemplo de muchos en datos espaciales, porque contiene solo las coordenadas de los eventos. Sin embargo, esto no implica que el tipo de análisis sea más simple que otros análisis con otros tipos de datos espaciales. De hecho, desde la perspectiva estadística, un análisis de proceso puntual puede complicarse mucho más desde una perspectiva matemática. ¿Razones?
+
+---
+
+# Componentes de un proceso puntual
+
+* Ubicaciones (coordinadas) 
+
+* Atributos (aunque estos no son necesarios para todos los tipos de análisis)
+
+Un proceso puntual es un conjunto de datos con una serie de ubicaciones puntuales ( `\(s_1, s_2, \dots\)` ) en una región de estudio `\(R\)` en los cuales ha ocurrido el evento de nuestro interés.
+
+---
+
+# Supuestos básicos
+
+1. Los datos presentan un conjunto de eventos en la región bajo estudio `\(R\)`, que llamamos un mapeo de procesos puntuales. Es decir, todos los eventos relevantes en `\(R\)` han sido registrados.
+
+*Algunos análisis de procesos puntuales tienen como objetivo extraer información limitada de un proceso puntual, utilizando los registros de eventos de una MUESTRA de distintas áreas en una región, en este caso estamos hablando de una muestra de un proceso puntual. Ejemplo: estudios de campo en ecología, investigación forestal, biología, etc, en donde un censo no es viable.*
+
+2. La región de estudio `\(R\)` puede tener una forma arbitraria. Sin embargo, algunos métodos aplican específicamente a regiones cuadradas o rectangulares. 
+
+3. Para eliminar los efectos del borde, se acostumbra dejar un área entre el perímetro de la región de estudio original y una subregión contenida, en la que los análisis serán llevados a cabo. 
+
+4. En todos los casos, el área de estudio seleccionada se asume como representativa de la región de la cual fue seleccionada. 
+
+---
+
+# Aspectos teóricos más importantes
+
+* Un proceso puntual espacial está definido como:
+
+`$$\{ Y(A), A \subseteq R \}$$`
+
+donde `\(Y(A)\)` es el número de eventos que ocurren en el área A.
+
+* Puntos, marcas y covariables.
+
+En otros libros de texto, se habla de puntos (igual que como hemos estado llamándolos), pero a los atributos los dividen en dos clases: marcas y covariables. Las marcas se refiere a una clasificación de los puntos según un grupo, por ejemplo: casos y control. Las covariables es cualquier otro atributo que califique a los puntos sin necesariamente dividirlos en categorías como las marcas. 
+
+---
+
+* Estadísticas descriptivas de los puntos: 
+
+
+&lt;div class="figure"&gt;
+&lt;img src="figs/centrography_mgimond.png" alt="Descriptivos de: https://mgimond.github.io/Spatial/point-pattern-analysis.html" width="70%" /&gt;
+&lt;p class="caption"&gt;Descriptivos de: https://mgimond.github.io/Spatial/point-pattern-analysis.html&lt;/p&gt;
+&lt;/div&gt;
+
+---
+
+## Estadísticas descriptivas de los puntos: 
+
+* Propiedades de Primer Orden (intensidad): 
+
+Las propiedades de primer orden están descritas en términos de intensidad `\(\lambda(s)\)` del proceso, y se refiere al promedio del número de eventos por área unitaria en el punto `\(s\)`. Matemáticamente `\(\lambda(s)\)` se define como:
+
+`$$\lambda(s) = lim_{A_s \to 0}\left[ \frac{E(Y(ds))}{A_s} \right]$$`
+
+donde `\(ds\)` es una región pequeña alrededor de `\(s\)` y `\(A_s\)` es el área de la región correspondiente a la ubicación `\(s\)`.
+
+Un proceso *estacionario* implica que `\(\lambda(s)\)` es constante en `\(R\)` y se expresa solamente como `\(\lambda\)`. Entonces, 
+
+`$$E(Y(A)) = \lambda*a$$`
+
+donde a es el área total de A.
+
+---
+
+## Estadísticas descriptivas de los puntos: 
+
+* Propiedades de Segundo Orden (distancia):
+
+Las propiedades de segundo orden están relacionadas con la dependencia espacial e implican relacionar pares de eventos con respecto al número de eventos en ellas. Esto se puede describir formalmente como intensidad de segundo orden `\(\lambda(s_i, s_j)\)` del proceso, y se refiere al promedio del número de eventos en pares en áreas en `\(R\)`. Matemáticamente `\(\lambda(s_i, s_j)\)` se define como:
+
+`$$\lambda(s_i, s_j) = lim_{A_{s_i},A_{s_j} \to 0}\left[ \frac{E(Y(ds_i)Y(ds_j))}{A_{s_i}A_{s_j}} \right]$$`
+  
+---
+
+# Aspectos teóricos más importantes
+
+**Proceso estacionario**
+La intensidad de segundo orden `\(\lambda(s_i, s_j) = \lambda(\vec{s_i} - \vec{s_j}) = \lambda(\vec{h})\)` depende del vector de diferencia `\(\vec{h}\)` (contiene dirección y distancia) entre las dos ubicaciones `\(\vec{s_i}\)` y `\(\vec{s_j}\)`, pero no de sus ubicaciones absolutas. El equivalente en series temporales es que no existen tendencias en la media, aquí aplica para la media espacial.
+
+**Proceso isotrópico**
+La dependencia `\(\lambda(s_i, s_j) = \lambda(h)\)` es una función únicamente de la longitud `\(h\)` del vector `\(\vec{h}\)` y no de su orientación. En otras palabras, es función solo de la distancia entre los puntos y no de su dirección. 
+
+---
+
+## Casos de Ejemplo
+
+#### Caso 1. Las ubicaciones de los cráteres en un campo de volcanes en Uganda. 
+
+Los datos continen las ubicaciones del punto central de cada uno de los cráteres de 120 volcanes en la región de  [Bunyaruguru](https://volcano.si.edu/volcano.cfm?vn=223004) en el oeste de Uganda.  Un mapa con la distribución muestra una tendencia regional en la dirección nor-este, que coincide con la región que abarca una falla. 
+
+Los objetivos de este estudio son:
+
+*	Obtener un mapa suavizado de la variación regional de este evento.  
+* Explorar un modelo para la distribución de cráteres en una escala espacial pequeña. 
+*	Contestar las siguientes preguntas:
+    - La región de estudio tiene eventos distribuidos aleatoriamente?
+    - Hay evidencia de agrupamientos o regularidad?
+
+* Es de interés contrastar la siguiente hipótesis:
+    - Es esperable que las grietas de fallas guíen la actividad volcánica a la superficie, a lo largo de fracturas o líneas de debilidad. La hipótesis nula es que esto es cierto.
+
+---
+
+#### Caso 1. Las ubicaciones de los cráteres en un campo de volcanes en Uganda. 
+
+
+Referencia: [Keith J. Tinkler, 1971](https://link.springer.com/article/10.1007/BF02083356)
+
+[Fuente de imagen](https://www.researchgate.net/figure/Simplified-map-showing-the-Kivu-Edward-Albert-West-Nile-rift-zone-of-the-East-African_fig1_320861438)
+
+
+&lt;img src="figs/volcan_researchgate.png" width="70%" /&gt;
+
+![]()
+
+---
+
+#### Caso 1. Las ubicaciones de los cráteres en un campo de volcanes en Uganda. 
+
+
+```r
+data(uganda)
+wndw &lt;- owin(poly=list(uganda$poly))
+xy.ppp &lt;- ppp(x = uganda$x,uganda$y,window = wndw)
+plot(xy.ppp, main="Cráteres en un campo de volcanes en Uganda")
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+#### Caso 1. Las ubicaciones de los cráteres en un campo de volcanes en Uganda. 
+
+
+```r
+data(uganda)
+wndw &lt;- owin(poly=list(uganda$poly))
+xy.ppp &lt;- ppp(x = uganda$x,uganda$y,window = wndw)
+plot(density(xy.ppp), main="Cráteres en un campo de volcanes en Uganda")
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-5-1.png)&lt;!-- --&gt;
+
+---
+
+#### Caso 2. Las ubicaciones de tors de granito en Bodmin Moor 
+
+Datos consisten en 35 ubicaciones de tors de granito y en una escala espacial amplia existe un claro patrón espacial.
+
+Los objetivos de este estudio son:
+
+*	Detectar cualquier evidencia de desviaciones de la aleatoriedad a escalas más pequeñas.
+* Encontrar si la regularidad en la distribución es válida solo para distancias pequeñas.
+* Determinar si la distribución espacial muestra otros patrones a distancias ligeramente más largas.
+
+
+NOTA: Un tor en geomorfología es un relieve residual que se produce por afloramientos de materiales de mayor dureza como por ejemplo el granito. [Wiki](https://es.wikipedia.org/wiki/Tor_(geomorfolog%C3%ADa)
+---
+
+#### Caso 2. Las ubicaciones de tors de granito en Bodmin Moor 
+
+
+```r
+data(bodmin)
+wndw &lt;- owin(poly=list(bodmin$poly))
+xy.ppp &lt;- ppp(x = bodmin$x,bodmin$y,window = wndw)
+plot(xy.ppp, main="Tors de granito en Bodmin Moor")
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-6-1.png)&lt;!-- --&gt;
+
+---
+
+#### Caso 2. Las ubicaciones de tors de granito en Bodmin Moor 
+
+
+```r
+data(bodmin)
+wndw &lt;- owin(poly=list(bodmin$poly))
+xy.ppp &lt;- ppp(x = bodmin$x,bodmin$y,window = wndw)
+plot(density(xy.ppp), main="Tors de granito en Bodmin Moor")
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-7-1.png)&lt;!-- --&gt;
+
+---
+
+#### Caso 3. Las ubicaciones de plántulas de secoya en un bosque.
+ 
+Tenemos 62 plantaciones jóvenes de secoyas distribuidas en una región cuadrada de `\(23m^2\)`.
+
+Los objetivos de este estudio son:
+
+* Determinar si la distribución espacial muestra agrupaciones.
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+
+---
+
+#### Caso 3. Las ubicaciones de plántulas de secoya en un bosque.
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
+
+---
+
+#### Caso 4. Las ubicaciones de centros de células biológicas en una sección de tejido.
+ 
+Son 42 centros de células biológicas en una sección de tejido.
+
+Los objetivos de este estudio son:
+
+*	Detectar cualquier evidencia de desviaciones de la aleatoriedad. ¿Están esas células agrupadas o están distribuidas regularmente?
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-10-1.png)&lt;!-- --&gt;
+
+---
+
+#### Caso 4. Las ubicaciones de centros de células biológicas en una sección de tejido.
+ 
+ 
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-11-1.png)&lt;!-- --&gt;
+
+---
+
+## Preguntas de visualización:
+
+* ¿Se puede sugerir una distribución poblacional de los eventos a partir de los gráficos de la región?
+
+* Si la población varía, ¿esperaríamos que se agruparan los eventos en áreas con más población?
+
+* Están los evento más o menos agrupados que lo que esperaríamos de la población?
+
+---
+
+## ¿Cómo exploramos los patrones espaciales?
+
+Podemos dividir los métodos en dos:
+
+* Métodos que se ocupan de investigar las propiedades de primer orden (basados en intensidad):
+
+	  - Métodos de cuadrantes
+	  - Estimación de Kernel
+
+* Métodos que se necesitan investigar las propiedades de segundo orden (basados en distancia):
+
+	  - Vecino más cercano (Nearest neighbor distances)
+	  - La función K. 
+
+---
+
+## Métodos de cuadrantes (70s)
+
+Resumen: imponga un grilla sobre el área `\(R\)` y cuente el número de eventos en cada grilla. Luego, puede dividir el número de eventos por el área de cada grilla y de esta manera estimar la intensidad.
+
+![](figs/quadrants.png)
+
+---
+
+## Métodos de cuadrantes (70s)
+
+![](figs/quadrants2.png)
+
+---
+
+* Métodos de cuadrantes en R
+
+
+```r
+data(spiders)
+plot(spiders)
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+* Métodos de cuadrantes en R
+
+
+```r
+data(spiders)
+plot(quadrat.test(as.ppp(spiders)))
+```
+
+```
+## Warning: Some expected counts are small; chi^2 approximation may be inaccurate
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+---
+
+# ¿Qué puede salir mal con los cuadrantes?
+
+Problema básico: A pesar de que el método da una idea global de las sub-regiones con intensidad alta o baja, dejamos de lado mucho detalle espacial (todo lo que se resumen en cada celda). Si por otro lado hacemos las grillas más pequeñas, entonces la variabilidad aumenta. 
+
+Una posible solución: Ventanas móviles: consiste en hacer las cuentas moviendo las ventanas alrededor del área de estudio. Sigue teniendo un problema: ¿Cómo decidimos el tamaño de una ventana?
+
+---
+
+##  Estimación de Kernel
+
+Originalmente se desarrolló para obtener una estimación suavizada de una densidad de probabilidad univariante o multivariante a partir de una muestra observada de observaciones (es decir, un histograma suavizado). En este caso, estimar la intensidad de un patrón de puntos espaciales es muy parecido a estimar una densidad de probabilidad bivariable.
+
+Si `\(s\)` representa una ubicación general en `\(R\)` y `\(s_1,\dots,s_n\)` son las ubicaciones de `\(n\)` eventos observados, entonces la intensidad, `\(\lambda(s)\)` en `\(s\)` se estima de la siguiente manera:
+
+`$$\hat{\lambda}_{\tau}(s)= \frac{1}{\delta_{\tau}(s)} \sum_{i=1}^{n}\frac{1}{\tau^2}k\left[ \frac{(s-s_i)}{\tau}\right]$$`
+
+donde `\(k()\)` es una función núcleo (kernel), `\(\tau\)` es el ancho de banda (bandwidth) y `\(\delta_{\tau}(s)\)` es un factor de corrección de borde.
+
+---
+
+##  Estimación de Kernel
+
+**Kernel o función núcleo**: es una función de densidad de probabilidad bivariada que es simétrica a partir del origen. Ejemplos: uniform, triangle, Epanechnikov,quartic (biweight), tricube,triweight, Gaussian, quadratic and cosine, etc. 
+[referencia](https://en.wikipedia.org/wiki/Kernel_(statistics))
+
+
+**Bandwidth o ancho de banda**: controla el suavizamiento. Es el radio de un disco centrado en `\(s\)` que marca una contribución o peso mayor a los valores `\(s_i\)` que ahí se incluyen. `\(\tau &gt; 0\)`. Valores muy pequeños hacen que cada kernel produzca un "pico" en cada punto, un valores muy grandes hacen que el kernel se vuelva plano, y hará que las características locales desaparezcan.
+
+---
+
+##  Estimación de Kernel
+
+![kernel](figs/kernel.png)
+
+---
+
+##  Estimación de Kernel
+
+Efecto del kernel:
+
+
+```r
+data(redwood)
+par(mfrow=c(1,4))
+plot(redwood)
+plot(density(redwood), main="Gaussian")
+plot(density(redwood, kernel="quartic"), main="quartic")
+plot(density(redwood, kernel="epanechnikov"),
+main="epanechnikov")
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-14-1.png)&lt;!-- --&gt;
+
+---
+
+##  Estimación de Kernel
+
+Efecto del ancho de banda:
+
+```r
+par(mfrow=c(1,4))
+plot(redwood)
+plot(density(redwood, adjust=0.5), main="0.5*bw")
+plot(density(redwood, adjust=1), main="1*bw")
+plot(density(redwood, adjust=4), main="4*bw")
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+---
+
+## Vecino más cercano (Nearest neighbor distances)
+
+Este método está diseñado para investigar las propiedades de segundo orden del proceso de punto espacial y se centra en la relación entre las distancias entre eventos. En este método, la distancia de evento-evento (W) más cercana y la distancia (X) de punto-evento vecino más próximo constituirán el área básica de interés.
+
+W: la distancia entre un evento seleccionado al azar en la región de estudio y un evento vecino más cercano.
+
+X: la distancia entre un punto seleccionado al azar en la región de estudio y el evento vecino más cercano
+
+W: Patrón de punto mapeado
+X:  Patrón de punto muestreado
+
+---
+
+![](figs/eventopunto.png)
+
+---
+
+La manera más simple de representar es por medio de una distribución de frecuencias y un gráfico con la estimación empírica de la función de probabilidad acumulada:
+
+![](figs/Gfunction0.png)
+
+---
+
+![](figs/Gfunction.png)
+
+---
+
+## La función G
+
+Si la función G crece muy rápido al inicio puede estar indicando agrupaciones en los datos. Si por el contrario, crece solo al final puede indicar repulsión entre los puntos. La función F presenta un comportamiento inverso: cuando crece despacio al inicio y luego muy rápido indica agrupaciones y si por el contrario crece muy rápido al principio y luego se estanca puede indicar repulsión en los datos.
+
+El mejor método para saber a cuál distribución se ajustan los datos es simular 1000 distribuciones puntuales espaciales (ya sea completamente aleatorias u otra distribución con la que se quiera comparar), construir un intervalo de confianza empírico y compararlo con la función que construimos con los datos para medir ajuste.
+
+---
+
+## Vecino más cercano
+
+
+```
+## Generating 99 simulations of CSR  ...
+## 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+## 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+## 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98,  99.
+## 
+## Done.
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+## Vecino más cercano
+
+
+```
+## Generating 99 simulations of CSR  ...
+## 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40,
+## 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80,
+## 81, 82, 83, 84, 85, 86, 87, 88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98,  99.
+## 
+## Done.
+```
+
+![](SP1649_c05_2020_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+
+---
+
+## La función K
+
+El método de vecinos más cercanos usa solo distancias de los eventos más cercanos y, por lo tanto, solo considera las escalas de patrón más pequeñas. La información en escalas más grandes de patrón se ignora.
+
+Un enfoque alternativo es usar una estimación de la medida de segundo momento reducida o la función `\(K\)` del proceso observado, que proporciona un resumen más efectivo de la dependencia espacial en un rango más amplio de escalas.
+
+---
+
+## La función K
+
+Propiedades de la función `\(K\)`:
+
+1. La función K representa la información en varias escalas de patrón.
+
+2. Implica el uso de la ubicación precisa de los eventos e incluye todas las distancias entre eventos y eventos, no solo las distancias de los vecinos más cercanos.
+
+3. La forma teórica de `\(K(h)\)` no solo se usa para varios modelos posibles de patrones de puntos espaciales, sino que también sugiere modelos específicos para representarlos y para estimar los parámetros de dichos modelos.
+
+---
+
+## La función K
+
+Observación: cuando se examina la dependencia espacial en escalas pequeñas en `\(R\)`, se realiza un supuesto implícitamente, que supone que el proceso es isótropico en tales escalas. Sin embargo, las propiedades de segundo orden no son necesariamente constantes en la escala considerada y pueden confundirse con los efectos de primer orden.
+
+Ejemplo: Si está claro que hay una variación a gran escala en la intensidad de un patrón de puntos dado sobre la totalidad del espacio `\(R\)`, este es realmente un efecto de primer orden que no es el resultado de la dependencia espacial. En este caso, es conveniente estudiar los efectos de segundo orden sobre las escalas en `\(R\)` lo suficientemente pequeños como para suponer que la isotropía se mantiene. Si no hay variación en la intensidad, es apropiado estudiar los efectos de segundo orden en escalas más grandes en la región de estudio.
+
+**Por lo tanto**, la función `\(K\)` se refiere a las propiedades de segundo orden de un proceso isotrópico. Sin embargo, si se utiliza en una situación en la que hay efectos de primer orden a gran escala, cualquier dependencia espacial que pueda indicar podría deberse a los efectos de primer orden en lugar de a los efectos de interacción. En tal caso, es mejor examinar subregiones más pequeñas de R, ya que se puede suponer razonablemente que la isotropía se mantiene.
+
+---
+
+## La función K
+
+La función `\(K\)` está definida por:
+
+`\(\lambda K(h) = E (\#(\text{eventos dentro de la distancia h de un evento arbitrario})\)`
+
+Donde # = Número de, `\(\lambda\)` = Intensidad (número medio de eventos / unidad de área)
+
+El valor práctico de `\(K(h)\)` como medida resumida de los efectos de segundo orden es que es factible obtener una estimación directa, `\(\hat{K(h)}\)` a partir de un patrón de puntos observado. ¿Cómo? Si `\(A\)` es el área de `\(R\)`, entonces el número esperado de eventos en `\(R\)` es `\(\lambda A\)`. El número esperado de pares de eventos a una distancia máxima de `\(h\)` aparte es `\(\lambda^2*A*K(h)\)`.
+
+Si `\(d_{ij}\)` es la distancia entre los eventos i-ésimos y j-ésimos observados en `\(R\)`, y `\(I_h(d_{ij})\)` es una función indicadora que es 1 si `\(d_{ij} \leq h\)` o es 0 de lo contrario, entonces el número observado de pares es `\(\sum \sum_{i \neq j} I_h(d_{ij})\)` y entonces una estimación adecuada de `\(K(h)\)` es:
+`$$\hat{K}(h) = \frac{1}{\lambda^2 A}\sum \sum_{i \neq j} I_h(d_{ij})$$`
+ 
+La función tiene variaciones que incluyen correcciones por borde y estimaciones de `\(\lambda\)` en lugar del valor paramétrico en el caso que no se tenga.
+
+---
+
+## Laboratorio 2: Crimen en Londres.
+
+El objetivo de este laboratorio es que Ud elabore un informe **corto** basado en este tutorial: http://r-video-tutorial.blogspot.com/2015/05/introductory-point-pattern-analysis-of.html
+
+El primer paso es correr el código y asegurarse de que todo funciona y que entiende qué está haciendo el código. El segundo es escribir un informe corto describiendo los métodos que se usaron y las preguntas de investigación que se contestaron con los resultados presentados. El formato recomendado es .md para que forme parte de sus repositorios.
+
+Los datos están en el repo del curso (london-street.csv).
+
+---
+class: center, middle, inverse
+
+Slides creadas via R package [**xaringan**](https://github.com/yihui/xaringan).
+
+El chakra viene de [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:10",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();</script>
+
+<script>
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
