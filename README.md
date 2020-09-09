@@ -39,13 +39,13 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
      <tr>
     <td width="10%"> 10.09.2020 </td>
     <td width="25%">  <a href="SP1649_c05_2020.html">Clase 5</a>  </td>
-    <td width="25%">  Lab1: Ejercicios 1.3, 2.6, 4.4, 6.6  <br>
-                      Lab1: Ejercicios 8.7 Lovelace (1 al 7 para entregar, pero les recomiendo trabajar en los otros como ejercicio). 
+    <td width="25%">  <a href="https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#53">Lab2</a>   </td>
+                      
   </tr>
        <tr>
     <td width="10%"> 03.09.2020 </td>
     <td width="25%">  <a href="SP1649_c06_2020.html">Clase 6</a>  </td>
-    <td width="25%">    </td>
+    <td width="25%">  </td>
   </tr>
 </table>
 
