@@ -1,0 +1,938 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Tópicos de Estadística Espacial Aplicada</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Semana 7" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Tópicos de Estadística Espacial Aplicada
+## II Semestre 2020
+### Semana 7
+### updated: 2020-09-21
+
+---
+
+
+
+
+
+class: middle
+# ¿Qué hemos visto hasta ahora?
+
+* Manejo computacional de clases de datos espaciales.
+
+* *Housekeeping* de manejo de datos espaciales.
+
+* Visualización de los distintos tipos de datos espaciales.
+
+* Una primera idea de los proyectos finales del curso.
+
+* Estadística descriptiva e inferencial para procesos puntuales.
+
+---
+class: middle
+# Mapa de Ruta para este semestre
+
+* Geoestadística + Lab 3 (3 semanas)
+  - Introducción
+  - El variograma
+  - Predicción Espacial
+  - Diagnósticos
+  - Simulación
+* GAMs + Lab 4 (2 semanas)
+* Estadística de Áreas + Lab 5 (3 semanas)
+
+---
+
+## GEOESTADÍSTICA: LOS RETOS
+
+* La mayoría de los fenómenos geológicos, atmosféricos, entre otros, son extraordinariamente complejos en sus interrelaciones y vastos en su extensión geográfica.
+
+* Normalmente, nos enfretamos a restricciones (financieras, operativas, etc.) y no podemos muestrear la totalidad de ubicaciones para construir apropiadamente modelos geológicos. La descripción exacta de un sistema tal como un depósito de petróleo, una mina de cualquier mineral, etc.,  no es ni factible ni económicamente posible.
+
+* Los resultados de este muestreo son necesariamente inciertos. Tenga en cuenta que la incertidumbre no es una propiedad intrínseca de los sistemas; es el resultado de un conocimiento incompleto por parte de el observador.
+
+---
+
+## EL OBJETIVO DE LA GEOESTADÍSTICA
+
+- Caracterización del componente espacial de un sistema que es usualmente observado de manera incompleta. Se conoce como un campo espacial aleatorio: **random field** `\(Z(s)\)` donde `\(Z\)` es la variable aleatoria y `\(s\)` es la locación fija en donde se muestrea.
+
+- Una diferencia clave de la estadística clásica es que se utiliza la ubicación de muestreo de cada medición, pero también que se asume que las observaciones son producto de un muestreo de un campo espacial aleatorio, que como mínimo debe presentar correlación espacial.
+
+- Por lo general, la necesidad de caracterizar este componente espacial es para realizar interpolación espacial, pero otros casos pueden ser también para probar estacionariedad, para simulación condicional, o para hacer inferencia basada en un modelo.
+
+---
+
+## OBSERVACIONES HISTóRICAS
+
+- Como disciplina, la geoestadística se estableció en la década de 1960 por el ingeniero francés Georges Matheron, que estaba interesado en la cuantificación de las reservas en minería.
+
+- La geoestadística no se desarrolló de la noche al día. Como muchas otras disciplinas, se ha basado en resultados anteriores, muchos de los cuales fueron formulados con diferentes objetivos en varios campos.
+
+PIONEROS
+
+* 1940s: A.N. Kolmogorov en flujos turbulentos y N. Wiener en procesos estocásticos.
+* 1950s: D. Krige en minería.
+* 1960s: B. Matern en forestal y L.S. Gandin en metereología.
+
+---
+
+## INFERENCIA ESPACIAL
+
+&lt;img src="figs/geo1.png" width="500"&gt;
+
+
+---
+
+## MÉTODOS GEOESTADÍSTICOS
+
+La geoestadística es una colección de técnicas numéricas para la caracterización de atributos espaciales utilizando principalmente dos herramientas:
+
+ - modelos probabilísticos, que se utilizan para datos espaciales de una manera similar a la forma en que las series de tiempo el análisis caracteriza los datos temporales, o
+
+ - técnicas de reconocimiento de patrones.
+
+Los modelos probabilísticos se utilizan como una forma de manejar la incertidumbre en los resultados fuera del muestreo de lugares.
+
+---
+
+## DIFERENCIAS CON RESPECTO A SERIES DE TIEMPO
+
+En análisis de series de tiempo, nos concentramos usualmente en las extrapolaciones para hacer pronósticos. Aunque podríamos estar interesadas en la extrapolación, los métodos funcionan mucho mejor interpolando. Esta diferencia tan simple tiene repercusiones metodologías significativas.
+
+&lt;img src="figs/geo2.png" width="200"&gt;
+
+---
+
+## DIFERENCIAS CON RESPECTO A ESTADÍSTICA CLÁSICA (1)
+
+* La ubicación geográfica es una parte integral de cualquier muestra.
+* Las mediciones tienen un soporte asociado. Por ejemplo, en el caso de la densidad, el soporte es el volumen de la muestra.
+* Geoestadística no asume que las variables son independiente e idénticamente distribuidas.
+* Una muestra espacial se considera como una única realización de una función aleatoria, en lugar de múltiples resultados de una sola variable aleatoria.
+
+---
+
+## DIFERENCIAS CON RESPECTO A ESTADÍSTICA CLÁSICA (2)
+
+* La mayoría de las formulaciones geoestadísticas no requieren alguna distribución de probabilidad en particular, aunque algunas funcionan mejor bajo condiciones de normalidad.
+* Las formas más adecuadas de muestreo espacial son aquellas que siguen un patrón regular: cúbico o hexagonal, por ejemplo.
+
+---
+
+## ALGUNOS SUPUESTOS / CONCEPTOS
+
+* Supuesto de ergodicidad: los métodos estocásticos consideran los datos como una observación de un número infinito de posibles realizaciones. Normalmente, uno necesita múltiples realizaciones para inferir acerca de las propiedades del conjunto completo. El supuesto de ergodicidad básicamente establece que solo una realización es suficiente para hacer evaluaciones confiables sobre las propiedades del conjunto. No es posible probar este supuesto.
+
+* Estacionariedad: Es un supuesto fundamental, supone que hay invariancia de las propiedades de la variable aleatoria a través del espacio. El caso más general supone que distribución conjunta de probabilidad de cualquier variable aleatoria es la misma.
+
+* Sesgo: ¿cuáles serían los sesgos espaciales?
+
+---
+
+## ALGUNOS SUPUESTOS / CONCEPTOS
+
+* Procesos Continuos: La continuidad espacial implica el concepto de que valores pequeños de un atributo están cerca geográficamente de otros valores pequeños, mientras que los valores altos están cerca de otros valores altos. Las transiciones son graduales.
+
+* La herramienta clásica de la geoestadística para medir la correlación espacial es la evaluación de la covarianza o su equivalente cercano, el semivariograma.
+
+---
+
+## EJEMPLOS
+
+* Interpolación de mediciones climáticas en un área geográfica.
+* Cálculo de la variancia asociada a estimaciones hechas utilizando mediciones en un campo espacial.
+* Modelos avanzados: predicción espacio - temporal utilizando la estructura de variancia covariancia de una variable aleatoria, por ejemplo, precipitación o temperatura en un modelo climático.
+* ¿Otros ejemplos?
+
+---
+
+## SEMIVARIOGRAMA
+
+&lt;img src="figs/semivar.jpeg" width="450"&gt;
+
+El semivariograma representa la autocorrelación espacial de los puntos muestrales medidos. Una vez que se traza cada par de ubicaciones, se ajusta un modelo a través de ellas. Parámetros: rango, umbral y nugget (pepita de oro).
+
+---
+
+## PARÁMETROS
+
+* Rango: Observando el modelo de un semivariograma, notará que a cierta distancia, el modelo se nivela. La distancia donde el modelo se aplana primero se conoce como el rango. Las ubicaciones muestrales separadas por distancias más cercanas al rango están autocorrelacionadas espacialmente, mientras que las ubicaciones más alejadas que el rango no lo están.
+
+* Umbral: El valor que el modelo de semivariograma alcanza en el rango (el valor en el eje y) se denomina umbral. El umbral parcial es el umbral menos la pepita (nugget).
+
+---
+
+## PARÁMETROS
+
+* La pepita (nugget): Teóricamente, a una distancia de separación cero (rezago = 0), el valor del semivariograma es 0. Sin embargo, a una distancia de separación infinitamente pequeña, el semivariograma a menudo exhibe un efecto nugget, que es un valor superior a 0. 
+
+El efecto nugget se puede atribuir a errores de medición o fuentes espaciales de variación a distancias más pequeñas que el intervalo de muestreo o ambos. Las variaciones a microescala más pequeñas que las distancias de muestreo aparecerán como parte del efecto nugget. Antes de recopilar datos, es importante obtener cierta comprensión de las escalas de variación espacial.
+
+
+---
+
+## DEFINICIÓN
+
+Dado un rezago espacial `\(h\)` que incluye magnitud y dirección, el semivariograma se definie como:
+`$$\gamma(h)= \frac{1}{2}Var[Z(s)-Z(s+h)]$$`
+mientras que la covariancia espacial se define como:
+
+`$$Cov(h)= E[(Z(s)-m)(Z(s+h)-m)]$$`
+con:
+`$$m = E[Z(s)]=E[Z(s+h)]$$`
+
+A diferencia de la covarianza clásica, la covarianza espacial se agrupa por distancia y se aplica al mismo atributo. Por lo tanto un término mucho más descriptivo es autocovarianza.
+
+---
+
+## INTERPRETACIONES
+
+- Si la media es constante y la covarianza es independiente de la ubicación, entonces siempre se cumple que `\(\gamma(h)= Cov(0) - Cov(h)\)`. En este caso da igual usar covariancia o semivariograma.
+
+- En general, se prefiere usar el semivariograma porque su estimación no requiere conocimiento de la media. El umbral es igual a la `\(Cov(0)\)`.
+
+&lt;img src="figs/semivar2.png" width="300"&gt;
+
+---
+
+## ESTIMADORES DEL SEMIVARIOGRAMA
+
+`$$\hat{\gamma}(\tilde{h}_j)= \frac{1}{2N_h} \sum_{i=1}^{N_h}[z(s_i)-Z(s_i+h)]^2$$`, `\(\forall h \in \tilde{h}_j\)`
+donde:
+
+* `\(\hat{\gamma}(h)\)` es el semivariograma estimado o experimental.
+* `\(\tilde{h}_j\)` es el rezago y `\(N_h\)` es el número de pares que están a h unidades de distancia.
+* `\(z(s_i)\)` son las observaciones en el sitio `\(s_i\)`.
+
+Recuerde siempre que para que el estimador sea válido, la media debe ser constante; por lo tanto, no debe haber tendencia. Para cualquier dirección, se recomienda `\(n(h) \geq 30\)` y que la estimación se limite a un `\(h\)` que no sea más de la mitad de la extensión del dominio de muestreo en esa dirección.
+
+---
+
+## EJEMPLO TRIVIAL
+
+&lt;img src="figs/semivar3.png" width="650"&gt;
+
+---
+
+## ANÁLISIS EXPLORATORIO
+
+Vamos a usar los datos de Meuse: concentración de metales pesados alrededor de la rivera del río Meuse. Más detalles: https://cran.r-project.org/web/packages/gstat/vignettes/gstat.pdf
+
+
+```r
+library(gstat)
+library(lattice)
+library(sp)
+data(meuse)
+coordinates(meuse) &lt;- c("x", "y")
+```
+
+---
+
+## ANÁLISIS EXPLORATORIO
+
+  
+
+```r
+xyplot(log(zinc)~sqrt(dist), as.data.frame(meuse), asp = .8)
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+
+---
+
+## ANÁLISIS EXPLORATORIO
+
+
+```r
+bubble(meuse, "zinc",col=c("#00ff0088", "#00ff0088"), main = "zinc concentrations (ppm)")
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+
+---
+
+## ANÁLISIS EXPLORATORIO
+
+
+```r
+zn.lm &lt;- lm(log(zinc)~sqrt(dist), meuse)
+meuse$fitted.s &lt;- predict(zn.lm, meuse) - mean(predict(zn.lm, meuse))
+meuse$residuals &lt;- residuals(zn.lm)
+spplot(meuse, c("fitted.s", "residuals"), cuts = 8, colorkey=TRUE)
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-4-1.png)&lt;!-- --&gt;
+
+---
+
+## Métodos de interpolación no-geoestadísticos
+
+ - Interpolación con pesos de distancia inversa (IDW):
+
+Calcula un promedio ponderado, en donde los pesos se calculan de acuerdo a la distancia de interés para la interpolación:
+`$$\hat{Z}(s_0) = \frac{\sum_{i=1}^{n}w(s_i)Z(s_i)}{\sum_{i=1}^{n}w(s_i)}$$`
+
+donde: `\(w(s_i)= ||s_i - s_0||^{-p}\)`, la norma se refiere a la distancia Euclideana y `\(p\)` es una potencia de distancia inversa (el default es 2). Si `\(s_0\)` coincide con una locación de otra observación, la función devuelve el valor observado para evitar valores infinitos. ¿Qué pasa con valores que queremos predecir pero que no están en el rango de los valores observados?
+
+---
+
+ - Interpolación con pesos de distancia inversa (IDW):
+
+
+```r
+data(meuse.grid)
+coordinates(meuse.grid) &lt;- c("x", "y")
+meuse.grid &lt;- as(meuse.grid, "SpatialPixelsDataFrame")
+names(meuse)
+```
+
+```
+##  [1] "cadmium"   "copper"    "lead"      "zinc"      "elev"      "dist"     
+##  [7] "om"        "ffreq"     "soil"      "lime"      "landuse"   "dist.m"   
+## [13] "fitted.s"  "residuals"
+```
+
+```r
+idw.out &lt;- gstat::idw(zinc~1, meuse, meuse.grid, idp = 2.5)
+```
+
+```
+## [inverse distance weighted interpolation]
+```
+
+```r
+as.data.frame(idw.out)[1:5,]
+```
+
+```
+##        x      y var1.pred var1.var
+## 1 181180 333740  701.9621       NA
+## 2 181140 333700  799.9616       NA
+## 3 181180 333700  723.5780       NA
+## 4 181220 333700  655.3131       NA
+## 5 181100 333660  942.0218       NA
+```
+---
+
+ - Regresión Lineal:
+
+Podemos usar regresión lineal simple, pero usando distancia como covariable: 
+
+
+```r
+zn.lm &lt;- lm(log(zinc)~sqrt(dist), meuse)
+meuse.grid$pred &lt;- predict(zn.lm, meuse.grid)
+meuse.grid$se.fit &lt;- predict(zn.lm, meuse.grid, se.fit=TRUE)$se.fit
+```
+
+---
+
+ - Regresión Lineal:
+
+Podemos usar krige (veremos la función en detalle más adelante), como no le agregamos variograma, entonces se convierte en regresión lineal simple:
+
+
+```r
+meuse.lm &lt;- krige(log(zinc)~sqrt(dist), meuse, meuse.grid)
+```
+
+```
+## [ordinary or weighted least squares prediction]
+```
+
+```r
+summary(meuse.lm)
+```
+
+```
+## Object of class SpatialPixelsDataFrame
+## Coordinates:
+##      min    max
+## x 178440 181560
+## y 329600 333760
+## Is projected: NA 
+## proj4string : [NA]
+## Number of points: 3103
+## Grid attributes:
+##   cellcentre.offset cellsize cells.dim
+## x            178460       40        78
+## y            329620       40       104
+## Data attributes:
+##    var1.pred        var1.var     
+##  Min.   :4.455   Min.   :0.1907  
+##  1st Qu.:5.303   1st Qu.:0.1909  
+##  Median :5.666   Median :0.1914  
+##  Mean   :5.731   Mean   :0.1920  
+##  3rd Qu.:6.114   3rd Qu.:0.1925  
+##  Max.   :6.994   Max.   :0.1983
+```
+
+
+---
+
+ - Regresión Lineal:
+
+
+```r
+# Trend surface analysis:
+meuse.tr2 &lt;- krige(log(zinc)~1, meuse, meuse.grid, degree = 2)
+```
+
+```
+## [ordinary or weighted least squares prediction]
+```
+
+```r
+summary(meuse.tr2)
+```
+
+```
+## Object of class SpatialPixelsDataFrame
+## Coordinates:
+##      min    max
+## x 178440 181560
+## y 329600 333760
+## Is projected: NA 
+## proj4string : [NA]
+## Number of points: 3103
+## Grid attributes:
+##   cellcentre.offset cellsize cells.dim
+## x            178460       40        78
+## y            329620       40       104
+## Data attributes:
+##    var1.pred        var1.var     
+##  Min.   :4.872   Min.   :0.2686  
+##  1st Qu.:5.336   1st Qu.:0.2704  
+##  Median :5.668   Median :0.2734  
+##  Mean   :5.714   Mean   :0.2778  
+##  3rd Qu.:6.010   3rd Qu.:0.2806  
+##  Max.   :7.355   Max.   :0.4771
+```
+
+---
+
+## Variograma o Semivariograma.
+
+Un poco de teoría:
+
+El supuesto de estacionariedad dice que el proceso que genera las variables aleatorias `\(Z(s)\)` se compone de una media y de un residual:
+
+$$ Z(s) = m + e(s)$$
+
+donde la media es constante, es decir:
+
+$$E[Z(s)] = m $$
+
+y el semivariograma se define como: 
+
+`$$\gamma(h) = E[Z(s)- Z(s+h)]^2$$`
+
+---
+
+## Variograma o Semivariograma.
+
+Este supuesto implica que:
+
+1. La variancia de `\(Z\)` es constante (por eso la ecuación no depende de `\(s\)`)
+2. La correlación espacial de `\(Z\)` no depende de la ubicación `\(s\)`, sino solamente de la distancia o rezago `\(h\)`.
+
+Podemos formar múltiples pares de observaciones `\(\{z(s_i),z(s_j)\}\)` con una distancia entre sí (o rezago) similar `\(h = s_i - s_j\)` y estimar la correlación entre ellos. 
+
+---
+
+## Variograma o Semivariograma.
+
+* Isotropía: supuesto que dice que hay independencia de dirección, es decir que `\(h\)` se puede expresar como su norma `\(||h||\)` (sin importar la dirección).
+
+Entonces, si tenemos isotropía y estacionariedad, podemos estimar el semivariograma con una muestra de `\(N_h\)` pares de datos `\(\{z(s_i),z(s_i+h)\}\)` para un número de distancias `\(\tilde{h}_j\)` con la siguiente fórmula:
+
+`$$\hat{\gamma}(\tilde{h}_j)= \frac{1}{2N_h} \sum_{i=1}^{N_h}[z(s_i)-Z(s_i+h)]^2$$`
+
+que llamaremos semivariograma estimado.
+
+---
+
+## Variograma o Semivariograma.
+
+Podemos extender el modelo con covariables para la media:
+
+$$Z(s) = \sum_{j=0}^{p}X_j(s)\beta_j + e(s) = X\beta + e(s) $$
+
+con `\(X_j(s)\)` como covariables observadas y `\(\beta_j\)` como un coeficiente de regresión. 
+
+** En estos modelos se asume estacionariedad de los residuos y el semivariograma debe ser estimado con los residuos estimados y no con las observaciones **
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas?
+
+*Opción 1*: una manera simple es hacer gráficos de dispersión de los pares de observaciones `\(\{z(s_i),z(s_i+h)\}\)` agrupados de acuerdo a la distancia de separación `\(h_{ij} = ||s_i - s_j ||\)`. 
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+
+```r
+hscat(log(zinc)~1,data=meuse,breaks=(0:9)*100, pch=1, cex=.3, col = 'gray')
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-9-1.png)&lt;!-- --&gt;
+
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+Cada scatterplot tiene su coeficiente de correlación entre todos los pares de observaciones a una distancia en ese rango. ¿Qué notan aquí?
+
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+*Opción 2*: Podemos graficar el semivariograma y la nube del semivariograma (las diferencias cuadradas versus la distancia).
+
+
+```r
+cld &lt;- variogram(log(zinc) ~ 1, meuse, cloud = TRUE)
+svgm &lt;- variogram(log(zinc) ~ 1, meuse)
+## ~1 quiere decir media constante
+d &lt;- data.frame(gamma = c(cld$gamma, svgm$gamma),
+    dist = c(cld$dist, svgm$dist),
+    id = c(rep("cloud", nrow(cld)), rep("sample variogram", nrow(svgm)))
+    )
+```
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+
+```r
+xyplot(gamma ~ dist | id, d,
+    scales = list(y = list(relation = "free", 
+	  #ylim = list(NULL, c(-.005,0.7)))),
+	  limits = list(NULL, c(-.005,0.7)))),
+    layout = c(1, 2), as.table = TRUE,
+    panel = function(x,y, ...) {
+        if (panel.number() == 2)
+            ltext(x+10, y, svgm$np, adj = c(0,0.5)) #$
+        panel.xyplot(x,y,...)
+    },
+    xlim = c(0, 1590),
+    cex = .5, pch = 3
+)
+```
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+* Note que: el semivariograma es un estadístico! está resumiendo la información de la nube, por medio de una estimación. Por ello, puede ser fácilmente influenciada por valores extremos
+
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-13-1.png)&lt;!-- --&gt;
+
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+Los puntos señalados por el polígono construido en rojo en el gráfico de la izquierda, son los puntos rojos en la derecha. Note que no están distribuidos aleatoriamente en la derecha, sino que conectan valores de la rivera con valores tierra adentro. Esto puede ser una indicación de anisotropía o de no estacionariedad. 
+
+* Valores extremos: muchas maneras de identificarlos, pero solo dos soluciones: eliminarlos o utilizar medidas robustas.
+
+Como un semivariograma estimado se compone de señal + error, podemos hacer una prueba para constatar que la señal no es "ruido", que consiste en generar datos de la misma muestra, pero ahora asignando aleatoriamente las ubicaciones de cada observación, y luego calculando el semivariograma. Podemos repetir este procedimiento cuantas veces podamos y luego generar una distribución empírica de un variograma generado por muestras aleatorias de las ubicaciones:
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+
+```r
+v &lt;- variogram(log(zinc) ~ 1, meuse)
+print(xyplot(gamma ~ dist, v, pch = 3, type = 'b', lwd = 2, col = 'darkblue',
+    panel = function(x, y, ...) {
+        for (i in 1:100) {
+            meuse$random = sample(meuse$zinc)
+            v = variogram(log(random) ~ 1, meuse)
+            llines(v$dist, v$gamma, col = 'grey')
+        }
+        panel.xyplot(x, y, ...)
+    },
+    ylim = c(0, 0.75), xlab = 'distance', ylab = 'semivariance'
+))
+```
+
+---
+
+## ¿Cómo hacer un análisis de semivariogramas? 
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+
+* Este tipo de exploración es muy útil cuando los datos han sido recolectados de una manera representativa, y cuando se tienen suficientes datos. Mucho cuidado con llegar a conclusiones utilizando pocos datos (o datos recolectados de una manera sesgada) con esta técnica.
+
+---
+
+### Decisiones para el ajuste de un semivariograma:
+
+El comando default:
+
+
+```r
+plot(variogram(log(zinc) ~ 1, meuse))
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+
+---
+
+### Decisiones para el ajuste de un semivariograma:
+
+
+¿Cómo hacemos para que tome en cuenta las direcciones? 
+
+
+```r
+plot(variogram(log(zinc) ~ 1, meuse, alpha = c(0, 45, 90, 135)))
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+---
+
+### Decisiones para el ajuste de un semivariograma:
+
+¿Cómo establecer la distancia máxima?
+El default es 1/3 de la diagonal más larga de la caja (bounding box). Y la distancia entre rezagos es 15. Ojo con establecer distancias muy pequeñas que hagan que el tamaño de las muestras de pares para algunos rezagos sean muy pequeñas.
+
+
+```r
+plot(variogram(log(zinc) ~ 1, meuse, cutoff = 1000, width = 50))
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-18-1.png)&lt;!-- --&gt;
+
+---
+
+### Decisiones para el ajuste de un semivariograma:
+
+¿Puedo establecer cortes que no sean equidistantes? ¿para qué es útil?
+
+
+```r
+plot(variogram(log(zinc) ~ 1, meuse, boundaries = c(0,50,100,seq(250,1500,250))))
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-19-1.png)&lt;!-- --&gt;
+
+---
+
+### Modelaje de los semivariogramas
+
+* Reto: Para realizar interpolación, necesitamos una matriz de covariancia que sea no-negativa definida. Por ello, usar la estimación del semivariograma como insumo para construir la matriz de covariancia no es correcto ni suficiente en la mayoría de los casos. 
+
+* Solución(es): Ajustar un modelo paramétrico para el semivariograma. También existen métodos para ajustar la curva utilizando métodos no paramétricos, pero necesitan de correcciones para eliminar valores negativos.
+
+---
+
+### Modelaje de los semivariogramas
+
+Veamos un resumen de los modelos disponibles:
+
+
+```r
+show.vgms()
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-20-1.png)&lt;!-- --&gt;
+
+---
+
+### Modelaje de los semivariogramas
+
+Y las opciones para la clase de Matern, por ejemplo:
+https://en.wikipedia.org/wiki/Mat%C3%A9rn_covariance_function
+
+
+```r
+show.vgms(model = "Mat", kappa.range = c(.1, .2, .5, 1, 2, 5, 10), max = 10)
+```
+
+![](SP1649_c07_2020_files/figure-html/unnamed-chunk-21-1.png)&lt;!-- --&gt;
+
+---
+
+### Modelaje de los semivariogramas
+
+¿Cómo podemos combinar distintos modelos de variograma válidos? (toda combinación es válida en este caso)
+
+
+```r
+vgm(1, "Sph", 300)
+```
+
+```
+##   model psill range
+## 1   Sph     1   300
+```
+
+```r
+vgm(1, "Sph", 300, 0.5)
+```
+
+```
+##   model psill range
+## 1   Nug   0.5     0
+## 2   Sph   1.0   300
+```
+
+---
+
+### Modelaje de los semivariogramas
+
+¿Cómo podemos combinar distintos modelos de variograma válidos? (toda combinación es válida en este caso)
+
+
+```r
+v1 &lt;- vgm(1, "Sph", 300, 0.5)
+v2 &lt;- vgm(0.8, "Sph", 800, add.to = v1)
+v2
+```
+
+```
+##   model psill range
+## 1   Nug   0.5     0
+## 2   Sph   1.0   300
+## 3   Sph   0.8   800
+```
+
+```r
+vgm(0.5, "Nug", 0)
+```
+
+```
+##   model psill range
+## 1   Nug   0.5     0
+```
+
+---
+
+### Modelaje de los semivariogramas
+
+¿Cuáles son las opciones?
+
+
+```r
+vgm()[1:8,]
+```
+
+```
+##   short                                      long
+## 1   Nug                              Nug (nugget)
+## 2   Exp                         Exp (exponential)
+## 3   Sph                           Sph (spherical)
+## 4   Gau                            Gau (gaussian)
+## 5   Exc        Exclass (Exponential class/stable)
+## 6   Mat                              Mat (Matern)
+## 7   Ste Mat (Matern, M. Stein's parameterization)
+## 8   Cir                            Cir (circular)
+```
+
+---
+
+### Modelaje de los semivariogramas
+
+¿Cuáles son las opciones?
+
+
+```r
+vgm()[9:16,]
+```
+
+```
+##    short                 long
+## 9    Lin         Lin (linear)
+## 10   Bes         Bes (bessel)
+## 11   Pen Pen (pentaspherical)
+## 12   Per       Per (periodic)
+## 13   Wav           Wav (wave)
+## 14   Hol           Hol (hole)
+## 15   Log    Log (logarithmic)
+## 16   Pow          Pow (power)
+```
+
+---
+
+### Modelaje de los semivariogramas
+
+¿Cuáles son las opciones?
+
+
+```r
+vgm()[17:20,]
+```
+
+```
+##    short                    long
+## 17   Spl            Spl (spline)
+## 18   Leg          Leg (Legendre)
+## 19   Err Err (Measurement error)
+## 20   Int         Int (Intercept)
+```
+Los más útiles: exponencial (súper simple y fácil de estimar), esférico, Gaussiano, Matérn y modelos de Potencia, con o sin Nugget o una combinación de ellos.
+
+---
+
+## Laboratorio 3: Precipitación y contaminación en California.
+
+El objetivo de este laboratorio es que Ud elabore un informe **corto** basado en este tutorial: https://rspatial.org/raster/analysis/4-interpolation.html
+
+El primer paso es correr el código y asegurarse de contestar las 9 preguntas que vienen incluidas en el tutorial. El segundo es escribir un informe corto describiendo las respuestas a las 9 preguntas, ayudándose de las representaciones gráficas. El formato recomendado es .md para que forme parte de sus repositorios.
+
+
+---
+class: center, middle, inverse
+
+Slides creadas via R package [**xaringan**](https://github.com/yihui/xaringan).
+
+El chakra viene de [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:10",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
