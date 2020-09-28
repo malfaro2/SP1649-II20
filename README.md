@@ -54,12 +54,12 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
   </tr>
   <tr>
     <td width="10%"> 01.10.2020 </td>
-    <td width="25%">  <a href="SP1649_c08_2020.html">Clase 8 pendiente </a>  </td>
+    <td width="25%">  <a href="SP1649_c08_2020.html">Clase 8</a>  </td>
     <td width="25%">  </td>
   </tr>
   <tr>
     <td width="10%"> 08.10.2020 </td>
-    <td width="25%">  <a href="SP1649_c09_2020.html">Clase 9 pendiente </a>  </td>
+    <td width="25%">  <a href="SP1649_c09_2020.html">Clase 9  </a>  </td>
     <td width="25%">  </td>
   </tr>
 </table>
