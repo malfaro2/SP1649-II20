@@ -1,0 +1,1112 @@
+<!DOCTYPE html>
+<html lang="" xml:lang="">
+  <head>
+    <title>Tópicos de Estadística Espacial Aplicada</title>
+    <meta charset="utf-8" />
+    <meta name="author" content="Semana 9" />
+    <link href="libs/remark-css-0.0.1/default.css" rel="stylesheet" />
+    <link href="libs/remark-css-0.0.1/default-fonts.css" rel="stylesheet" />
+  </head>
+  <body>
+    <textarea id="source">
+class: center, middle, inverse, title-slide
+
+# Tópicos de Estadística Espacial Aplicada
+## II Semestre 2020
+### Semana 9
+### updated: 2020-09-28
+
+---
+
+
+
+
+
+class: middle
+# ¿Qué hemos visto hasta ahora?
+
+* Manejo computacional de clases de datos espaciales.
+
+* *Housekeeping* de manejo de datos espaciales.
+
+* Visualización de los distintos tipos de datos espaciales.
+
+* Una primera idea de los proyectos finales del curso.
+
+* Estadística descriptiva e inferencial para procesos puntuales.
+
+---
+class: middle
+# Mapa de Ruta para este semestre
+
+* Geoestadística + Lab 3 (3 semanas)
+  - Introducción
+  - El variograma
+  - Predicción Espacial
+  - Diagnósticos
+  - Simulación
+* GAMs + Lab 4 (2 semanas)
+* Estadística de Áreas + Lab 5 (3 semanas)
+
+---
+
+## GEOESTADÍSTICA: repaso
+
+* Geoestadística: caracterización de procesos contínuos en el espacio.
+
+* Uso del variograma para describir la estructura de la correlación espacial.
+
+* Existen otros tipos de interpolación (determinísticos o con estructuras de error simplificadas).
+
+* Hoy continuamos con el caso especial de la interpolación en geoestadística: Kriging. 
+
+¿Predicción, Kriging o interpolación? ¿Cuál es la diferencia?
+
+---
+
+## PREDICCIÓN ESPACIAL
+
+"Predicción de cantidades no conocidas `\(Z(s_0)\)` basada en una muestra de observaciones de `\(Z(s_i)\)` y supuestos acerca de la forma de la tendencia de `\(Z\)`, su variancia y su correlación espacial"
+
+&lt;img src="figs/geo1.png" width="400"&gt;
+
+---
+
+## PREDICCIÓN ESPACIAL
+
+* Por ahora vamos a concentrarnos en predicción geoestadística: Kriging.
+
+* La base teórica del método Kriging fue desarrollada por el matemático francés Georges Matheron en 1960, basándose en la tesis de maestría de Danie G. Krige.
+
+* Krige fue el pionero de las marcas de oro usando promedios ponderados por distancia en el complejo de arrecifes de Witwatersrand en Sudáfrica. Trató de estimar la distribución más probable de oro basándose en muestras de unos pocos pozos. 
+
+* El verbo inglés es krige y el nombre más común es kriging; ambos se pronuncian a menudo con una "g" dura, siguiendo la pronunciación del nombre "Krige". La palabra a veces se escribe con mayúscula como Kriging en la literatura.
+
+---
+
+## PREDICCIÓN ESPACIAL
+
+Si suponemos un modelo lineal con covariables conocidas como:
+
+`$$Z(s) = \sum_{j=0}^{p} X_j(s) \beta_j + e(s) = X\beta + e(s)$$`
+
+con `\(X_j(s)\)` como covariables espaciales conocidas, y `\(\beta_j\)` un coeficiente de regresión desconocido, usualmente con un intercepto `\(X_0(s) = 1\)`. Al final tenemos una matriz de diseño `\(n \times (p+1)\)` y `\(\beta\)` es una vector columna con `\((p+1)\)` coeficientes.
+
+
+---
+
+## PREDICCIÓN ESPACIAL
+
+`$$Z(s) = \sum_{j=0}^{p} X_j(s) \beta_j + e(s) = X\beta + e(s)$$`
+
+Ahora suponga que tenemos nuevos valores de las covariables `\(X_j(s_0)\)` en la ubicación `\(s_0\)`, y que ya estimamos `\(V\)` la matriz de covariancia de `\(Z(s)\)`, podemos obtener `\(v\)` que es el vector de covariancia entre `\(Z(s)\)` y `\(Z(s_0)\)`, entonces el mejor predictor lineal insesgado (BLUP por sus siglas en inglés) es:
+
+`$$\hat{Z}(s_0) = x(s_0)\hat{\beta}+ v^{'} V^{-1}(Z(s)-X\hat{\beta})$$`
+
+con `\(\hat{\beta} = (X^{'}V^{-1}X)^{-1}X^{'}V^{-1}Z(s)\)` y donde `\(v^{'}V^{-1}\)` son los pesos de kriging.
+---
+
+## PREDICCIÓN ESPACIAL
+
+`$$\hat{Z}(s_0) = x(s_0)\hat{\beta}+ v^{'} V^{-1}(Z(s)-X\hat{\beta})$$`
+
+Este estimador tiene un error:
+
+`$$\sigma^2(s_0) = \sigma_0^2 - v^{'}V^{-1}v + \delta(X^{'}V^{-1}X)^{-1}\delta^{'}$$` 
+
+* `\(var(Z(s_0))= \sigma^2_0\)`, `\(\delta = x(s_0)-v^{'}V^{-1}X\)`. 
+* `\(v^{'}V^{-1}v\)` es cero si `\(v\)` es cero, es decir, si las observaciones nuevas `\(Z(s_0)\)` no están correlacionadas con las observaciones `\(Z(s)\)`, e igual a `\(\sigma^2_0\)` si `\(s_0\)` es igual a una ubicación que ya se observó. 
+* El tercer término es la contribución del error de estimación `\(var(\hat{\beta}-\beta)= (X^{'}V^{-1}X)^{-1}\)` a la predicción. `\(\delta(X^{'}V^{-1}X)^{-1}\delta^{'} = 0\)` si `\(s_0\)` coincide con una de las ubicaciones observadas.
+
+
+---
+
+## Kriging Simple, Ordinario y Universal
+
+* Universal: BLUP con `\(p&gt;0\)` covariables 
+* Kriging con tendencia externa: BLUP con `\(p=1\)`, además, X no incluye coordenadas.
+* Kriging Ordinario: BLUP con `\(p=0\)` y `\(X_0 = 1\)`.
+* Simple Kriging: BLUP con `\(\beta\)` conocida (omitimos error de `\(\hat{beta}\)`)
+
+---
+
+## Kriging Simple, Ordinario y Universal
+
+El comando krige escoge cuál de todos usar:
+
+&lt;img src="figs/kriging.png" width="600"&gt;
+
+---
+
+
+```r
+library(sp)
+data(meuse)
+coordinates(meuse) &lt;- c("x", "y")
+print(xyplot(log(zinc)~sqrt(dist), as.data.frame(meuse), asp = .8), split = 
+c(1, 1,2,1), more = TRUE)
+zn.lm &lt;- lm(log(zinc)~sqrt(dist), meuse)
+meuse$fitted.s &lt;- predict(zn.lm, meuse) - mean(predict(zn.lm, meuse))
+meuse$residuals &lt;- residuals(zn.lm)
+print(spplot(meuse, c("fitted.s", "residuals"), col.regions = 
+  pal(), cuts = 8, colorkey=TRUE), split = c(2,1,2,1))
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-1-1.png)&lt;!-- --&gt;
+
+```r
+data(meuse.grid)
+coordinates(meuse.grid) &lt;- c("x", "y")
+meuse.grid &lt;- as(meuse.grid, "SpatialPixelsDataFrame")
+```
+
+---
+
+## Aclaración acerca de variograma:
+
+https://www.rdocumentation.org/packages/gstat/versions/1.1-6/topics/variogram
+*alpha*: direction in plane (x,y), in positive degrees clockwise from positive y (North): alpha=0 for direction North (increasing y), alpha=90 for direction East (increasing x); optional a vector of directions in (x,y). 
+
+
+.pull-left[
+
+```r
+plot(variogram(log(zinc) ~ 1, meuse, alpha = c(0, 45, 90, 135)))
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-2-1.png)&lt;!-- --&gt;
+]
+
+
+.pull-right[
+
+```r
+plot(variogram(log(zinc) ~ 1, meuse, alpha = c(0, 180, 90, 270)))
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-3-1.png)&lt;!-- --&gt;
+]
+---
+
+## Predicción o Kriging Univariado:
+
+
+```r
+f &lt;- log(zinc) ~ sqrt(dist)
+v &lt;- variogram(log(zinc) ~ 1, meuse)
+vt &lt;- variogram(f, meuse)
+v.fit &lt;- fit.variogram(v, vgm(1, "Sph", 800, 1))
+vt.fit &lt;- fit.variogram(vt, vgm(1, "Exp", 300, 1))
+vt.fit
+```
+
+```
+##   model      psill    range
+## 1   Nug 0.05712231   0.0000
+## 2   Exp 0.17641559 340.3201
+```
+
+```r
+g.wls &lt;- gstat(NULL, "log-zinc", f, meuse, model=vt.fit, set = list(gls=1))
+(variogram(g.wls)$gamma - vt$gamma)/ mean(vt$gamma)
+```
+
+```
+##  [1]  1.133887e-05 -6.800894e-05 -1.588582e-04 -2.520913e-04 -5.461007e-05
+##  [6] -1.257573e-04  2.560629e-04  1.509185e-04  4.812184e-07 -5.292472e-05
+## [11] -2.998868e-04  2.169712e-04 -1.771773e-04  1.872195e-04  3.095021e-05
+```
+
+---
+
+## Predicción o Kriging Univariado:
+
+
+```r
+lz.sk &lt;- krige(log(zinc)~1, meuse, meuse.grid, v.fit, beta = 5.9)
+```
+
+```
+## [using simple kriging]
+```
+
+```r
+lz.ok &lt;- krige(log(zinc)~1, meuse, meuse.grid, v.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+lz.uk &lt;- krige(log(zinc)~sqrt(dist), meuse, meuse.grid, vt.fit)
+```
+
+```
+## [using universal kriging]
+```
+
+---
+
+## ¿Qué pasa con respuestas multivariadas? CoKriging
+
+No solo tenemos correlación espacial, sino que también tenemos otra "capa" de correlaciones entre variables. Hablamos la clase pasada de construir o apilar variables en un solo objeto:
+
+.pull-left[
+
+
+```r
+g &lt;- gstat(NULL, "logCd", log(cadmium)~1, meuse)
+g &lt;- gstat(g, "logCu", log(copper)~1, meuse)
+g &lt;- gstat(g, "logPb", log(lead)~1, meuse)
+g &lt;- gstat(g, "logZn", log(zinc)~1, meuse)
+g
+```
+
+```
+## data:
+## logCd : formula = log(cadmium)`~`1 ; data dim = 155 x 14
+## logCu : formula = log(copper)`~`1 ; data dim = 155 x 14
+## logPb : formula = log(lead)`~`1 ; data dim = 155 x 14
+## logZn : formula = log(zinc)`~`1 ; data dim = 155 x 14
+```
+
+```r
+vm &lt;- variogram(g)
+```
+
+---
+
+En este caso tenemos cuatro variables distintas que funcionan como respuesta, todas georeferenciadas. Generamos los mapas con la variancia y covariancia del error de predicción:
+
+.pull-left[
+
+```r
+vm.fit &lt;- fit.lmc(vm, g, vgm(1, "Sph", 800, 1))
+cok.maps &lt;- predict(vm.fit, meuse.grid)
+```
+
+```
+## Linear Model of Coregionalization found. Good.
+## [using ordinary cokriging]
+```
+
+```r
+names(cok.maps)
+```
+
+```
+##  [1] "logCd.pred"      "logCd.var"       "logCu.pred"      "logCu.var"      
+##  [5] "logPb.pred"      "logPb.var"       "logZn.pred"      "logZn.var"      
+##  [9] "cov.logCd.logCu" "cov.logCd.logPb" "cov.logCu.logPb" "cov.logCd.logZn"
+## [13] "cov.logCu.logZn" "cov.logPb.logZn"
+```
+]
+.pull-right[
+
+```r
+print(spplot.vcov(cok.maps, cuts=6, col.regions=pal(7)))
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-8-1.png)&lt;!-- --&gt;
+]
+---
+
+Note que en las salidas encontramos un: "Linear Model of Coregionalization found. Good." 
+
+¿Qué es corregionalización? Una técnica para simplificar el cálculo de las inversas. La referencia original está aquí: https://link.springer.com/article/10.1023/B:MATG.0000028440.29965.2d
+El problema más común en este caso es tener una matriz que NO sea no-negativa, que puede darse por distintas razones, entre ellas mucha disparidad entre las distancias. 
+
+
+```r
+vm2.fit &lt;- vm.fit
+vm2.fit$model[[3]]$range  = c(0, 900) # dará un error
+#predict(vm2.fit, meuse.grid)
+```
+
+
+```r
+vm2.fit$set &lt;- list(nocheck=1) 
+x &lt;- predict(vm2.fit, meuse.grid)
+names(x)
+any(as.data.frame(x)[c(4,6,8,10)]&lt;0)
+```
+
+Pueden probar que ninguna variancia es negativa además del check inicial.
+
+---
+
+## ¿Y si es multivariado con covariables? Collocated kriging
+
+
+```r
+g.cc &lt;- gstat(NULL, "log.zinc", log(zinc)~1, meuse, model = v.fit) # especificación
+meuse.grid$distn &lt;- meuse.grid$dist - mean(meuse.grid$dist) + mean(log(meuse$zinc)) 
+vd.fit &lt;- v.fit
+vov &lt;- var(meuse.grid$distn) / var(log(meuse$zinc))
+vd.fit$psill &lt;- v.fit$psill * vov
+g.cc &lt;- gstat(g.cc, "distn", distn ~ 1, meuse.grid, nmax = 1, model=vd.fit,
+    merge = c("log.zinc","distn"))
+vx.fit &lt;- v.fit
+vx.fit$psill &lt;- sqrt(v.fit$psill * vd.fit$psill) *
+   cor(meuse$dist, log(meuse$zinc)) #$
+g.cc &lt;- gstat(g.cc, c("log.zinc", "distn"), model = vx.fit)
+x &lt;- predict(g.cc, meuse.grid)
+```
+
+```
+## Intrinsic Correlation found. Good.
+## [using ordinary cokriging]
+```
+
+---
+
+
+```r
+x$lz.uk &lt;- lz.uk$var1.pred
+x$lz.ok &lt;- lz.ok$var1.pred
+print(spplot(x, c("log.zinc.pred", "lz.ok", "lz.uk"),
+    names.attr = c("collocated", "ordinary", "universal"),
+    cuts=7, col.regions=pal(8)
+))
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-12-1.png)&lt;!-- --&gt;
+
+¿Quieren ver un ejemplo aplicado a estimación de cambio en el tiempo? 
+
+Pueden revisar este código: https://github.com/edzer/gstat/blob/master/demo/pcb.R
+para realizar lo que presenta este paper: https://link.springer.com/chapter/10.1007%2F3-540-26535-X_31
+
+---
+
+## Block Kriging
+
+¿Por qué hacerlo? Utilidad práctica y para tener un error de predicción menor.
+¿Problemas? Si, muchos. Solo se recomienda cuando hay una buena razón en la aplicación para hacerlo.
+
+
+&lt;img src="figs/blockkriging.jpg" width="600"&gt;
+
+
+---
+
+gstat lo hace de varias maneras:
+
+* Para bloques regulares, solo especificando su tamaño.
+* Para figuras irregulares (pero constantes), especificando puntos que discretizan la forma irregular.
+* Para bloques o areas de tamaño diferentes pueden tratarse como un objeto de clase polígono. 
+
+
+```r
+lz.ok &lt;- krige(log(zinc)~1, meuse, meuse.grid, v.fit, block = c(40, 40)) ## Opción 1
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+xy &lt;- expand.grid(x = seq(-20, 20, 4), y = seq(-20, 20, 4))
+xy &lt;- xy[(xy$x^2 + xy$y^2) &lt;= 20^2, ]
+lz.ok &lt;- krige(log(zinc)~1, meuse, meuse.grid, v.fit, block = xy)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+## Opción 2
+
+## Opción 3 tendría la forma:
+# lz.ok &lt;- krige(log(zinc)~1, meuse, meuse.polygon, v.fit)
+```
+
+---
+
+## Partiendo el dominio en estratos
+
+Ejemplos: Regiones de planificación, tipos de suelo, uso del suelo, cambio de pendiente, o cualquier otra variable que pueda traducirse en un estrato.
+
+.pull-left[
+
+```r
+meuse$part.a &lt;- gstat::idw(part.a~1, meuse.grid, meuse, nmax=1)$var1.pred
+```
+
+```
+## [inverse distance weighted interpolation]
+```
+
+```r
+meuse$part.a &lt;- over(meuse, meuse.grid["part.a"])[[1]]
+meuse$part.a &lt;- meuse.grid$part.a[over(meuse, geometry(meuse.grid))]
+
+## primer kriging: 
+x1 &lt;- krige(log(zinc)~1, meuse[meuse$part.a == 0,],
+meuse.grid[meuse.grid$part.a == 0,], model = vgm(.548, "Sph", 900, .0654),nmin = 20, nmax = 40, maxdist = 1000)
+```
+
+```
+## [using ordinary kriging]
+```
+]
+.pull-right[
+
+```r
+plot(meuse.grid[meuse.grid$part.a == 0,])
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-15-1.png)&lt;!-- --&gt;
+]
+
+---
+.pull-left[
+
+```r
+## segundo kriging:
+x2 &lt;- krige(log(zinc)~1, meuse[meuse$part.a == 1,],
+meuse.grid[meuse.grid$part.a == 1,], model = vgm(.716, "Sph", 900),
+nmin = 20, nmax = 40, maxdist = 1000)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+plot(meuse.grid[meuse.grid$part.a == 1,])
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-16-1.png)&lt;!-- --&gt;
+]
+.pull-right[
+
+```r
+lz.stk &lt;- rbind(as.data.frame(x1), as.data.frame(x2))
+coordinates(lz.stk) &lt;- c("x", "y")
+lz.stk &lt;- as(x, "SpatialPixelsDataFrame")
+spplot(lz.stk["log.zinc.pred"], main="Kriging Estratificado")
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-17-1.png)&lt;!-- --&gt;
+]
+---
+
+## Funciones de tendencia
+
+¿Qué pasaría si nos devolvemos a regresión? Muchas veces es útil ignorar la parte espacial para hacer un análisis exploratorio:
+
+
+```r
+g.tr &lt;- gstat(formula = log(zinc) ~ sqrt(dist), data = meuse, model = v.fit)
+predict(g.tr, meuse[1,]) # Universal kriging
+```
+
+```
+## [using universal kriging]
+```
+
+```
+##        coordinates var1.pred      var1.var
+## 1 (181072, 333611)  6.929517 -1.110223e-16
+```
+
+```r
+predict(g.tr, meuse[1,], BLUE = TRUE) ## esto hace que volvamos a la opción no espacial, es decir a GLS estimation.
+```
+
+```
+## [generalized least squares trend estimation]
+```
+
+```
+##        coordinates var1.pred   var1.var
+## 1 (181072, 333611)  6.862085 0.06123864
+```
+
+---
+
+También podemos crear un intercepto fijo y un coeficiente:
+
+```r
+meuse$Int &lt;- rep(1, 155)  #intercepto = 1
+g.tr &lt;- gstat(formula = log(zinc) ~ -1+Int+sqrt(dist), data =     
+                meuse,model = v.fit)
+rn &lt;- c("Intercept", "beta1")
+df &lt;- data.frame(Int = c(1,0), dist = c(0,1), row.names=rn)
+spdf &lt;- SpatialPointsDataFrame(SpatialPoints(matrix(0, 2, 2)), df)
+spdf
+```
+
+```
+##           coordinates Int dist
+## Intercept      (0, 0)   1    0
+## beta1          (0, 0)   0    1
+```
+
+```r
+predict(g.tr, spdf, BLUE = TRUE)
+```
+
+```
+## [generalized least squares trend estimation]
+```
+
+```
+##           coordinates var1.pred   var1.var
+## Intercept      (0, 0)  6.953173 0.06633691
+## beta1          (0, 0) -2.471753 0.20018883
+```
+
+---
+
+## Transformaciones no lineales de la respuesta
+
+Normal Score transform: http://geostatisticslessons.com/lessons/normalscore
+
+Excelente para forzar a una variable a distribuirse como normal, el problema es la interpretación al final de la construcción del modelo.
+
+
+```r
+meuse$zinc.ns &lt;- qqnorm(meuse$zinc, plot.it = FALSE)$x
+ind.f &lt;- I(zinc &lt; 500) ~ 1
+ind.fit &lt;- fit.variogram(variogram(ind.f, meuse), vgm(1, "Sph", 800, 1))
+ind.kr &lt;- krige(ind.f, meuse, meuse.grid, ind.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+summary(ind.kr$var1.pred)
+```
+
+```
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -0.03472  0.47490  0.80732  0.70385  0.94536  1.08764
+```
+
+---
+
+## Errores de matriz singular
+
+Kriging no es bueno resolviendo problemas de observaciones repetidas o que comparten la misma ubicación, porque eso haría que estén perfectamente correlacionadas, y causaría que la matriz `\(V\)` no sea singular. 
+
+.pull-left[
+
+```r
+meuse.dup &lt;- rbind(as.data.frame(meuse)[1,], as.data.frame(meuse))
+coordinates(meuse.dup)=~x+y
+krige(log(zinc)~1, meuse.dup, meuse[1,], v.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+##        coordinates var1.pred var1.var
+## 1 (181072, 333611)        NA       NA
+```
+]
+
+.pull-right[
+
+```r
+## podemos encontrar las observaciones duplicadas con:
+zd &lt;- zerodist(meuse.dup)
+zd
+```
+
+```
+##      [,1] [,2]
+## [1,]    1    2
+```
+
+```r
+## Y eliminarlas "a mano"
+meuse0 &lt;- meuse.dup[-zd[,1],]
+krige(log(zinc)~1, meuse0, meuse[1,], v.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+##        coordinates var1.pred      var1.var
+## 1 (181072, 333611)  6.929517 -1.110223e-16
+```
+]
+---
+
+Otras causas comunes de matrices singulares:
+
+* Cuando se utiliza un modelo únicamente con Nugget, o que causan que la matriz contenga correlación perfecta a pesar de que no estén en la misma ubicación. 
+
+* Usar un modelo de regresión con variables perfectamente correlacionadas. 
+
+Podemos pedirle a R que se "brinque" esas observaciones repetidas:
+
+
+```r
+if (packageDescription("gstat")$Version &lt; "1.1-1") {
+    setL &lt;- list(cn_max=1e10)
+} else {
+    setL &lt;- list(choleski = 0)
+}
+krige(log(zinc)~1, meuse.dup, meuse[1,], v.fit, set = setL)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+## Warning in predict.gstat(g, newdata = newdata, block = block, nsim = nsim, :
+## Covariance matrix singular at location [181072,333611,0]: skipping...
+```
+
+```
+##        coordinates var1.pred var1.var
+## 1 (181072, 333611)        NA       NA
+```
+
+---
+
+En este caso estamos asignando NA a las ubicaciones con `\(X^{'}V^{-1}X &gt; 10^{10}\)` o con una descomposición de Cholesky igual a 0 (es decir, que no logró hacer la descomposición para ese punto).
+
+Hay que ser cautas en este caso, porque los casos en que casi es singular no van a ser detectados con estas herramientas, y pueden causar problemas graves de estimación (normalmente esto se traduce en errores estimados muy grandes).
+
+También podemos modificar las coordenadas (o correrlas), pero con esta opción hay que tener mucho cuidado.
+
+.pull-left[
+
+```r
+v &lt;- variogram(log(zinc) ~ 1, meuse)
+v.fit &lt;- fit.variogram(v, vgm(1, "Sph", 800, 1))
+v.fit
+```
+
+```
+##   model      psill    range
+## 1   Nug 0.05065923   0.0000
+## 2   Sph 0.59060463 896.9976
+```
+
+```r
+log(meuse$zinc[1])
+```
+
+```
+## [1] 6.929517
+```
+]
+
+.pull-right[
+
+```r
+krige(log(zinc)~1, meuse, meuse[1,], v.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+##        coordinates var1.pred      var1.var
+## 1 (181072, 333611)  6.929517 -1.110223e-16
+```
+
+```r
+meuse_shift = meuse
+meuse_shift@coords[1,] = meuse@coords[1,] + 1
+```
+]
+---
+
+.pull-left[
+
+```r
+krige(log(zinc)~1, meuse, meuse_shift[1,], v.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+##        coordinates var1.pred var1.var
+## 1 (181073, 333612)  6.880461 0.089548
+```
+
+```r
+err.fit &lt;- fit.variogram(v, vgm(1, "Sph", 800, Err=1))
+err.fit
+```
+
+```
+##   model      psill    range
+## 1   Err 0.05065923   0.0000
+## 2   Sph 0.59060463 896.9976
+```
+
+```r
+krige(log(zinc)~1, meuse, meuse[1,], err.fit)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+##        coordinates var1.pred   var1.var
+## 1 (181072, 333611)  6.884405 0.03648707
+```
+]
+
+.pull-right[
+
+```r
+v = fit.variogram(v, vgm(1, "Sph", 800, Err = .01, nugget = 1),
+   fit.sill = c(FALSE,TRUE,TRUE))
+v
+```
+
+```
+##   model      psill    range
+## 1   Err 0.01000000   0.0000
+## 2   Nug 0.04065923   0.0000
+## 3   Sph 0.59060463 896.9976
+```
+
+```r
+krige(log(zinc)~1, meuse[1,], meuse[1,], v)
+```
+
+```
+## [using ordinary kriging]
+```
+
+```
+##        coordinates var1.pred var1.var
+## 1 (181072, 333611)  6.929517     0.01
+```
+]
+---
+
+### Diagnósticos
+
+¿Para qué nos sirven los diagnósticos?
+
+Decisiones que podríamos evaluar:
+
+* Una posible transformación de la variable respuesta.
+* La forma de la función de tendencia.
+* Las decisiones para construir el variograma (cutoff, lag, direcciones).
+* Los parámetros del variograma (y el modelo).
+* El tamaño y el criterio que define un vecindario local.
+
+En este caso, podemos evaluar todas estas decisiones con validación cruzada.
+
+¿Cómo se hace CV en datos sin georeferenciación?
+¿Cómo se les ocurre que puede ser la CV en datos espaciales?
+
+---
+
+## Validación cruzada de residuales
+
+
+&lt;img src="figs/lovelaceCV.png" width="600"&gt;
+
+---
+
+Podemos intentar partirlo aleatoriamente. 
+
+
+```r
+set.seed(1357531)
+sel100 &lt;- sample(1:155, 100) # muestra aleatoria de 100 puntos
+m.model &lt;- meuse[sel100,] ## training set
+m.valid &lt;- meuse[-sel100,] ## testing set
+v100.fit &lt;- fit.variogram(variogram(log(zinc)~1, m.model), vgm(1, "Sph", 800,   1)) # ajuste del modelo con el training set
+m.valid.pr &lt;- krige(log(zinc)~1, m.model, m.valid, v100.fit) # predicción para el testing set
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+resid.kr &lt;- log(m.valid$zinc) - m.valid.pr$var1.pred 
+summary(resid.kr)
+```
+
+```
+##     Min.  1st Qu.   Median     Mean  3rd Qu.     Max. 
+## -0.75897 -0.15947  0.07564  0.06224  0.28614  1.36686
+```
+
+```r
+resid.mean &lt;- log(m.valid$zinc) - mean(log(m.valid$zinc))
+R2 &lt;- 1 - sum(resid.kr^2)/sum(resid.mean^2)
+R2 ## evidencia de que la predicción es mejor que la media.
+```
+
+```
+## [1] 0.6896056
+```
+
+---
+
+Ahora, podemos hacer la validación cruzada:
+
+
+```r
+m.valid.pr$res &lt;- resid.kr 
+nfold &lt;- 3 ## número de folds
+part &lt;- sample(1:nfold, 155, replace = TRUE) # muestra con reemplazo
+sel &lt;- (part != 1)
+m.model &lt;- meuse[sel,] # training
+m.valid &lt;- meuse[-sel,] # test
+v.fit &lt;- vgm(.59, "Sph", 874, .04)
+cv155 &lt;- krige.cv(log(zinc)~1, meuse, v.fit, nfold=5, verbose=FALSE)
+print(bubble(cv155, "residual", main = "log(zinc): 5-fold CV residuals",maxsize = 1.5, col = c("green", "red")))
+```
+
+![](SP1649_c09_2020_files/figure-html/unnamed-chunk-29-1.png)&lt;!-- --&gt;
+
+---
+
+## z-Scores de validación cruzada
+
+Las salidas de la validación cruzada incluyen mucho más que solo los residuales:
+
+`$$z_i = \frac{Z(s_i)-\hat{Z}_{[i]}(s_i)}{\sigma_{[i]}(s_i)}$$`
+
+donde `\(\hat{Z}_{[i]}(s_i)\)` es la predicción de validación cruzada para `\(s_i\)` y `\(\sigma_{[i]}(s_i)\)` es el error de predicción correspondiente. En teoría `\(z_i\)` debería tener una distribución normal estándar.
+
+
+```r
+names(cv155)
+```
+
+```
+## [1] "var1.pred" "var1.var"  "observed"  "residual"  "zscore"    "fold"
+```
+
+---
+
+## Validación cruzada multivariante
+
+
+```r
+g.cv &lt;- gstat.cv(g, nmax=40)
+```
+
+Parámetros: 
+* nmax = x donde x es el número de vecinos cercanos a tomar en cuenta.
+* remove.all = FALSE solo borra la respuesta de la primera variable en la ubicación seleccionada para hacer la validación cruzada. Si se escribe verdadero, entonces borrará todas las variables para esa ubicación.
+* all.residuals = FALSE solo calcula residuales para la primera variable. Si se especifica como verdadera, entonces lo hará con todas las variables.
+
+---
+
+## Limitaciones de la VC
+
+* Es útil para señalar algo que no se ajusta a nuestro modelo.
+* No es útil para señalar lo que NO está en nuestros datos.
+
+Veamos el ejemplo de ajuste de dos modelos (el segundo solo toma en cuenta vecinos más cercanos de 40 m). En este caso los resultados serán iguales por la naturaleza de los datos (en los datos de Meuse no hay datos separados por una distancia mayor a 40).
+
+
+```r
+v1.fit &lt;- vgm(0.591, "Sph", 897, .0507)
+v2.fit &lt;- vgm(0.591, "Sph", 897, add.to = vgm(0.0507, "Sph", 40))
+```
+
+Ahora podemos hacer VC para las dos opciones:
+
+
+```r
+set.seed(13331)
+cv155.1 &lt;- krige.cv(log(zinc)~1, meuse, v1.fit, nfold=5, verbose=FALSE)
+set.seed(13331)
+cv155.2 &lt;- krige.cv(log(zinc)~1, meuse, v2.fit, nfold=5, verbose=FALSE)
+summary(cv155.1$residual-cv155.2$residual)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+##       0       0       0       0       0       0
+```
+
+---
+Sin embargo, si utilizamos variogramas de bloque (en donde el comportamiento del variograma en el origen es más importante), entonces podemos tener resultados muy diferentes:
+
+
+```r
+b1 &lt;- krige(log(zinc)~1, meuse, meuse.grid, v1.fit, block = c(40,40))$var1.var
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+b2 &lt;- krige(log(zinc)~1, meuse, meuse.grid, v2.fit, block = c(40,40))$var1.var
+```
+
+```
+## [using ordinary kriging]
+```
+
+```r
+summary((b1-b2)/b1)
+```
+
+```
+##    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+## -0.4313 -0.2195 -0.1684 -0.1584 -0.1071  0.4374
+```
+
+¿Cómo hacer validación cruzada espacial con otros paquetes?
+https://geocompr.robinlovelace.net/spatial-cv.html#spatial-cv-with-mlr
+
+
+Continuación de laboratorio:
+https://rspatial.org/raster/analysis/4-interpolation.html
+
+
+---
+class: center, middle, inverse
+
+Slides creadas via R package [**xaringan**](https://github.com/yihui/xaringan).
+
+El chakra viene de [remark.js](https://remarkjs.com), [**knitr**](http://yihui.name/knitr), and [R Markdown](https://rmarkdown.rstudio.com).
+    </textarea>
+<style data-target="print-only">@media screen {.remark-slide-container{display:block;}.remark-slide-scaler{box-shadow:none;}}</style>
+<script src="https://remarkjs.com/downloads/remark-latest.min.js"></script>
+<script>var slideshow = remark.create({
+"highlightStyle": "github",
+"highlightLines": true,
+"ratio": "16:10",
+"countIncrementalSlides": false
+});
+if (window.HTMLWidgets) slideshow.on('afterShowSlide', function (slide) {
+  window.dispatchEvent(new Event('resize'));
+});
+(function(d) {
+  var s = d.createElement("style"), r = d.querySelector(".remark-slide-scaler");
+  if (!r) return;
+  s.type = "text/css"; s.innerHTML = "@page {size: " + r.style.width + " " + r.style.height +"; }";
+  d.head.appendChild(s);
+})(document);
+
+(function(d) {
+  var el = d.getElementsByClassName("remark-slides-area");
+  if (!el) return;
+  var slide, slides = slideshow.getSlides(), els = el[0].children;
+  for (var i = 1; i < slides.length; i++) {
+    slide = slides[i];
+    if (slide.properties.continued === "true" || slide.properties.count === "false") {
+      els[i - 1].className += ' has-continuation';
+    }
+  }
+  var s = d.createElement("style");
+  s.type = "text/css"; s.innerHTML = "@media print { .has-continuation { display: none; } }";
+  d.head.appendChild(s);
+})(document);
+// delete the temporary CSS (for displaying all slides initially) when the user
+// starts to view slides
+(function() {
+  var deleted = false;
+  slideshow.on('beforeShowSlide', function(slide) {
+    if (deleted) return;
+    var sheets = document.styleSheets, node;
+    for (var i = 0; i < sheets.length; i++) {
+      node = sheets[i].ownerNode;
+      if (node.dataset["target"] !== "print-only") continue;
+      node.parentNode.removeChild(node);
+    }
+    deleted = true;
+  });
+})();
+(function() {
+  "use strict"
+  // Replace <script> tags in slides area to make them executable
+  var scripts = document.querySelectorAll(
+    '.remark-slides-area .remark-slide-container script'
+  );
+  if (!scripts.length) return;
+  for (var i = 0; i < scripts.length; i++) {
+    var s = document.createElement('script');
+    var code = document.createTextNode(scripts[i].textContent);
+    s.appendChild(code);
+    var scriptAttrs = scripts[i].attributes;
+    for (var j = 0; j < scriptAttrs.length; j++) {
+      s.setAttribute(scriptAttrs[j].name, scriptAttrs[j].value);
+    }
+    scripts[i].parentElement.replaceChild(s, scripts[i]);
+  }
+})();
+(function() {
+  var links = document.getElementsByTagName('a');
+  for (var i = 0; i < links.length; i++) {
+    if (/^(https?:)?\/\//.test(links[i].getAttribute('href'))) {
+      links[i].target = '_blank';
+    }
+  }
+})();
+// adds .remark-code-has-line-highlighted class to <pre> parent elements
+// of code chunks containing highlighted lines with class .remark-code-line-highlighted
+(function(d) {
+  const hlines = d.querySelectorAll('.remark-code-line-highlighted');
+  const preParents = [];
+  const findPreParent = function(line, p = 0) {
+    if (p > 1) return null; // traverse up no further than grandparent
+    const el = line.parentElement;
+    return el.tagName === "PRE" ? el : findPreParent(el, ++p);
+  };
+
+  for (let line of hlines) {
+    let pre = findPreParent(line);
+    if (pre && !preParents.includes(pre)) preParents.push(pre);
+  }
+  preParents.forEach(p => p.classList.add("remark-code-has-line-highlighted"));
+})(document);</script>
+
+<script>
+slideshow._releaseMath = function(el) {
+  var i, text, code, codes = el.getElementsByTagName('code');
+  for (i = 0; i < codes.length;) {
+    code = codes[i];
+    if (code.parentNode.tagName !== 'PRE' && code.childElementCount === 0) {
+      text = code.textContent;
+      if (/^\\\((.|\s)+\\\)$/.test(text) || /^\\\[(.|\s)+\\\]$/.test(text) ||
+          /^\$\$(.|\s)+\$\$$/.test(text) ||
+          /^\\begin\{([^}]+)\}(.|\s)+\\end\{[^}]+\}$/.test(text)) {
+        code.outerHTML = code.innerHTML;  // remove <code></code>
+        continue;
+      }
+    }
+    i++;
+  }
+};
+slideshow._releaseMath(document);
+</script>
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+(function () {
+  var script = document.createElement('script');
+  script.type = 'text/javascript';
+  script.src  = 'https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-MML-AM_CHTML';
+  if (location.protocol !== 'file:' && /^https?:/.test(script.src))
+    script.src  = script.src.replace(/^https?:/, '');
+  document.getElementsByTagName('head')[0].appendChild(script);
+})();
+</script>
+  </body>
+</html>
