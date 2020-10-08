@@ -62,5 +62,10 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
     <td width="25%">  <a href="SP1649_c09_2020.html">Clase 9  </a>  </td>
     <td width="25%">  </td>
   </tr>
+    <tr>
+    <td width="10%"> 15.10.2020 </td>
+    <td width="25%">  <a href="https://noamross.github.io/gams-in-r-course/chapter3">Clase 10 y 11  </a>  </td>
+    <td width="25%">  Lab4: repetir el Lab3 usando GAMs </td>
+  </tr>
 </table>
 
