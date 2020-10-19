@@ -84,3 +84,10 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
   </tr>
 </table>
 
+Anuncios:
+
+* El laboratorio 5 se entrega el jueves 12 de noviembre a las 5pm
+* La entrega 3 del proyecto también tiene fecha límite el 12 de noviembre a las 5pm
+* El jueves 12 de noviembre no hay clases
+* El jueves 19 de noviembre atenderé consultas acerca de los proyectos durante las horas de clase
+* El jueves 26 de noviembre será la entrega del artículo terminado y las exposiciones del mismo. Cada persona tiene 20 minutos para exponer. 
