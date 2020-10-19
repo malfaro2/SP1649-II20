@@ -67,23 +67,20 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
     <td width="25%">  <a href="https://noamross.github.io/gams-in-r-course/chapter3">Clase 10 y 11  </a>  </td>
     <td width="25%">  Lab4: repetir el Lab3 usando GAMs </td>
   </tr>
-    </tr>
     <tr>
     <td width="10%"> 22.10.2020 </td>
     <td width="25%">  <a href="SP1649_c12_2020.html">Clase 12  </a>  </td>
-    <td width="25%">  <a href="https://rspatial.org/raster/analysis/3-spauto.html">Lab5</a> </td>
+    <td width="25%">  <a href="https://rspatial.org/raster/analysis/3-spauto.html"> Lab5 </a> </td>
   </tr>
-    </tr>
     <tr>
     <td width="10%"> 29.10.2020 </td>
     <td width="25%">  <a href="SP1649_c13_2020.html">Clase 13  </a>  </td>
     <td width="25%">   </td>
   </tr>
-    </tr>
     <tr>
     <td width="10%"> 5.11.2020 </td>
     <td width="25%">  <a href="SP1649_c14_2020.html">Clase 14  </a>  </td>
-    <td width="25%">  </td>
+    <td width="25%">   </td>
   </tr>
 </table>
 
