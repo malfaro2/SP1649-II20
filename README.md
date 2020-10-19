@@ -86,8 +86,14 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
 
 Anuncios:
 
-* El laboratorio 5 se entrega el jueves 12 de noviembre a las 5pm
-* La entrega 3 del proyecto también tiene fecha límite el 12 de noviembre a las 5pm
+* El [laboratorio 5](https://rspatial.org/raster/analysis/3-spauto.html) se entrega el jueves 12 de noviembre a las 5pm
+* La [entrega 3](https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#3) del proyecto también tiene fecha límite el 12 de noviembre a las 5pm
 * El jueves 12 de noviembre no hay clases
 * El jueves 19 de noviembre atenderé consultas acerca de los proyectos durante las horas de clase
-* El jueves 26 de noviembre será la entrega del artículo terminado y las exposiciones del mismo. Cada persona tiene 20 minutos para exponer. 
+* El jueves 26 de noviembre será la entrega del [proyecto terminado]((https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#3)) y las exposiciones del mismo. Cada persona tiene 20 minutos para exponer. La evaluación (total es 30% de la nota) es la siguiente:
+
+        - Artículo 15% (formato, rigurosidad en el planteamiento del problema, explicación clara, uso correcto de las técnicas y redacción)
+        
+        - Repositorio (datos, código, documentación) 10%
+        
+        - Exposición 5%
