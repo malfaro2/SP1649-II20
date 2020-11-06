@@ -67,23 +67,33 @@ Las clases grabadas se irán subiendo [aquí](https://www.youtube.com/playlist?l
     <td width="25%">  <a href="https://noamross.github.io/gams-in-r-course/chapter3">Clase 10 y 11  </a>  </td>
     <td width="25%">  Lab4: repetir el Lab3 usando GAMs </td>
   </tr>
-    </tr>
     <tr>
     <td width="10%"> 22.10.2020 </td>
     <td width="25%">  <a href="SP1649_c12_2020.html">Clase 12  </a>  </td>
-    <td width="25%">  <a href="https://rspatial.org/raster/analysis/3-spauto.html">Lab5</a> </td>
+    <td width="25%">  <a href="https://rspatial.org/raster/analysis/3-spauto.html"> Lab5 </a> </td>
   </tr>
-    </tr>
     <tr>
     <td width="10%"> 29.10.2020 </td>
     <td width="25%">  <a href="SP1649_c13_2020.html">Clase 13  </a>  </td>
     <td width="25%">   </td>
   </tr>
-    </tr>
     <tr>
     <td width="10%"> 5.11.2020 </td>
     <td width="25%">  <a href="SP1649_c14_2020.html">Clase 14  </a>  </td>
-    <td width="25%">  </td>
+    <td width="25%">   </td>
   </tr>
 </table>
 
+Anuncios:
+
+* El [laboratorio 5](https://rspatial.org/raster/analysis/3-spauto.html) se entrega el jueves 12 de noviembre a las 5pm
+* La [entrega 3](https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#3) del proyecto también tiene fecha límite el 12 de noviembre a las 5pm
+* El jueves 12 de noviembre no hay clases
+* El jueves 19 de noviembre atenderé consultas acerca de los proyectos durante las horas de clase
+* El jueves 26 de noviembre será la entrega del [proyecto terminado]((https://malfaro2.github.io/SP1649-II20/SP1649_c05_2020.html#3)) y las exposiciones del mismo. Cada persona tiene 20 minutos para exponer. La evaluación (total es 30% de la nota) es la siguiente:
+
+        - Artículo 15% (formato, rigurosidad en el planteamiento del problema, explicación clara, uso correcto de las técnicas y redacción)
+        
+        - Repositorio (datos, código, documentación) 10%
+        
+        - Exposición 5%
